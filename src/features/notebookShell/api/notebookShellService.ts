@@ -5,8 +5,8 @@ const useMockNotebook = true;
 
 const mockNotebookShell: NotebookShell = {
   id: "notebook-demo",
-  title: "Python Notebook",
-  language: "python",
+  title: "JS Notebook",
+  language: "JavaScript",
   kernelStatus: "ready",
   cells: [
     {
@@ -19,7 +19,7 @@ const mockNotebookShell: NotebookShell = {
       id: "cell-code",
       type: "code",
       title: "First code cell",
-      preview: "print(\"Hello from a mocked Python cell\")"
+      preview: "console.log(\"Hello from a mocked JavaScript cell\")"
     }
   ]
 };

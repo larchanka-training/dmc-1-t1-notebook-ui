@@ -12,7 +12,7 @@ export interface NotebookCell {
 export interface NotebookShell {
   id: string;
   title: string;
-  language: "python";
+  language: string;
   kernelStatus: NotebookKernelStatus;
   cells: NotebookCell[];
 }
