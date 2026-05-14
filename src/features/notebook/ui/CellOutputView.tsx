@@ -2,7 +2,6 @@ import type { CodeCell, CellOutput } from "../model/types";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { StreamOutputView } from "./StreamOutputView";
 import { ErrorOutputView } from "./ErrorOutputView";
-import { RichOutputView } from "./RichOutputView";
 import { Button } from "../../../shared/ui/Button";
 
 interface CellOutputViewProps {
@@ -19,9 +18,12 @@ function renderOutput(output: CellOutput) {
       return <StreamOutputView output={output} />;
     case "error":
       return <ErrorOutputView output={output} />;
-    case "display_data":
     case "execute_result":
-      return <RichOutputView data={output.data} />;
+      return (
+        <pre className="overflow-x-auto px-4 py-3 font-mono text-xs text-stone-700">
+          {output.text}
+        </pre>
+      );
   }
 }
 

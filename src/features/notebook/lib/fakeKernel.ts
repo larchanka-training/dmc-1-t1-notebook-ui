@@ -44,7 +44,7 @@ export async function executeCode(source: string): Promise<{
   const lines = source.split("\n").filter((l) => l.trim() !== "");
   const lastLine = lines.length > 0 ? lines[lines.length - 1] : "";
   return {
-    output: { type: "execute_result", data: { "text/plain": lastLine } },
+    output: { type: "execute_result", text: lastLine },
     status: "ok",
     executionCount,
   };

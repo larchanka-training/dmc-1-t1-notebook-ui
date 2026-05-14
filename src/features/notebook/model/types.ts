@@ -43,11 +43,7 @@ export interface CellMetadata {
 
 export type ExecutionState = "idle" | "queued" | "running" | "error";
 
-export type CellOutput =
-  | StreamOutput
-  | DisplayDataOutput
-  | ExecuteResultOutput
-  | ErrorOutput;
+export type CellOutput = StreamOutput | ExecuteResultOutput | ErrorOutput;
 
 export interface StreamOutput {
   type: "stream";
@@ -55,16 +51,9 @@ export interface StreamOutput {
   text: string;
 }
 
-export interface DisplayDataOutput {
-  type: "display_data";
-  data: MimeBundle;
-  metadata?: Record<string, unknown>;
-}
-
 export interface ExecuteResultOutput {
   type: "execute_result";
-  data: MimeBundle;
-  metadata?: Record<string, unknown>;
+  text: string;
 }
 
 export interface ErrorOutput {
@@ -73,15 +62,6 @@ export interface ErrorOutput {
   evalue: string;
   traceback: string[];
 }
-
-export type MimeBundle = {
-  "text/plain"?: string;
-  "text/html"?: string;
-  "image/png"?: string;
-  "image/jpeg"?: string;
-  "image/svg+xml"?: string;
-  "application/json"?: unknown;
-} & Record<string, unknown>;
 
 // ---- API / Redux state ----
 
