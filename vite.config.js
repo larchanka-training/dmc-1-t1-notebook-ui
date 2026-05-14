@@ -7,6 +7,7 @@ export default defineConfig(function (_a) {
     return {
         plugins: [react(), tailwindcss()],
         server: {
+            allowedHosts: ['notebook.com'],
             proxy: {
                 "/api": {
                     target: env.VITE_API_PROXY_TARGET || "http://localhost:8000",
