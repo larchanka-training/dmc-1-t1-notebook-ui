@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import notebookShellReducer from "../../features/notebookShell/model/notebookShellSlice";
+import notebookReducer from "../../features/notebook/model/notebookSlice";
 
 export const store = configureStore({
   reducer: {
-    notebookShell: notebookShellReducer
+    notebook: notebookReducer
   }
 });
 

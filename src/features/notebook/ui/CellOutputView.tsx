@@ -1,8 +1,9 @@
-import type { CodeCell, CellOutput } from "../../../shared/types/notebook";
+import type { CodeCell, CellOutput } from "../model/types";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { StreamOutputView } from "./StreamOutputView";
 import { ErrorOutputView } from "./ErrorOutputView";
 import { RichOutputView } from "./RichOutputView";
+import { Button } from "../../../shared/ui/Button";
 
 interface CellOutputViewProps {
   cell: CodeCell;
@@ -34,10 +35,11 @@ export function CellOutputView({ cell }: CellOutputViewProps) {
 
   return (
     <div className="border-t border-stone-100">
-      <button
-        type="button"
+      <Button
+        variant="text"
+        size="xs"
         onClick={() => dispatch(notebookActions.toggleOutputCollapsed(cell.id))}
-        className="flex items-center gap-1.5 px-4 py-1 text-xs text-stone-400 hover:text-stone-600"
+        className="flex items-center gap-1.5 px-4 py-1"
         aria-label={collapsed ? "Expand output" : "Collapse output"}
       >
         <span
@@ -46,7 +48,7 @@ export function CellOutputView({ cell }: CellOutputViewProps) {
           ▶
         </span>
         <span>{collapsed ? "Output hidden" : "Output"}</span>
-      </button>
+      </Button>
       {!collapsed && (
         <div className="border-t border-stone-100">{renderOutput(output)}</div>
       )}

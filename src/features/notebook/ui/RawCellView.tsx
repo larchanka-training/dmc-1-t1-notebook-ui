@@ -1,4 +1,4 @@
-import type { RawCell } from "../../../shared/types/notebook";
+import type { RawCell } from "../model/types";
 import { CellEditor } from "./CellEditor";
 
 interface RawCellViewProps {

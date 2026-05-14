@@ -1,4 +1,4 @@
-import type { ErrorOutput } from "../../../shared/types/notebook";
+import type { ErrorOutput } from "../model/types";
 
 interface ErrorOutputViewProps {
   output: ErrorOutput;

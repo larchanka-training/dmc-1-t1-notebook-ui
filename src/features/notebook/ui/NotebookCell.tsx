@@ -1,4 +1,5 @@
-import type { Cell } from "../../../shared/types/notebook";
+import { useState } from "react";
+import type { Cell } from "../model/types";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { ExecutionIndicator } from "./ExecutionIndicator";
 import { CellActions } from "./CellActions";
@@ -26,41 +27,43 @@ function CellBody({ cell }: { cell: Cell }) {
 export function NotebookCell({ cell, index, total }: NotebookCellProps) {
   const { state, dispatch } = useNotebook();
   const isSelected = state.ui.selectedCellId === cell.id;
+  const [collapsed, setCollapsed] = useState(false);
+
+  const isSelectedClassNames = isSelected
+    ? "border-stone-300 shadow-sm"
+    : "border-stone-200 hover:border-stone-300";
 
   return (
     <article
-      className={`group relative flex overflow-hidden rounded-md border bg-white transition-shadow ${
-        isSelected
-          ? "border-stone-300 shadow-sm"
-          : "border-stone-200 hover:border-stone-300"
-      }`}
+      className={`group relative overflow-hidden rounded-md border transition-shadow bg-[#fbfbfa] ${isSelectedClassNames}`}
       onClick={() => dispatch(notebookActions.selectCell(cell.id))}
     >
       {/* Active cell left accent */}
       <div
-        className={`w-0.5 flex-shrink-0 transition-colors ${
+        className={`w-0.5 absolute h-full transition-colors ${
           isSelected ? "bg-blue-400" : "bg-transparent"
         }`}
       />
 
-      {/* Gutter — execution indicator for code cells, empty space otherwise */}
-      <div className="flex w-14 flex-shrink-0 items-start justify-end px-2 pt-2.5">
-        {cell.type === "code" && <ExecutionIndicator cell={cell} />}
+      <div className="border-b border-stone-200">
+        <div className="flex items-center justify-between px-2 py-1">
+          <div className="rounded-full bg-stone-200 px-3 py-1 text-xs font-medium text-stone-600 flex items-center">
+            {cell.type}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {cell.type === "code" && <ExecutionIndicator cell={cell} />}
+            <CellActions cell={cell} index={index} total={total} collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
+          </div>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="min-w-0 flex-1">
-        <CellBody cell={cell} />
-      </div>
-
-      {/* Actions — fade in on hover or when selected */}
-      <div
-        className={`flex flex-shrink-0 flex-col items-center px-1 pt-1.5 transition-opacity ${
-          isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        }`}
-      >
-        <CellActions cell={cell} index={index} total={total} />
-      </div>
+      {!collapsed && (
+        <div className="min-w-0 flex-1 p-1">
+          <CellBody cell={cell} />
+        </div>
+      )}
     </article>
   );
 }

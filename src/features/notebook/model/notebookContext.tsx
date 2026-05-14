@@ -13,7 +13,7 @@ import type {
   CellOutput,
   Notebook,
   StreamOutput,
-} from "../../../shared/types/notebook";
+} from "./types";
 
 // ---- Local UI state (not persisted) ----
 

@@ -1,4 +1,4 @@
-import type { MimeBundle } from "../../../shared/types/notebook";
+import type { MimeBundle } from "../model/types";
 
 interface RichOutputViewProps {
   data: MimeBundle;

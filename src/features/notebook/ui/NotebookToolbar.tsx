@@ -1,6 +1,7 @@
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useRunCell } from "../model/useRunCell";
 import { KernelStatus } from "./KernelStatus";
+import { Button } from "../../../shared/ui/Button";
 
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
@@ -11,64 +12,47 @@ export function NotebookToolbar() {
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
   const isCodeCell = activeCell?.type === "code";
 
-  const btnBase =
-    "rounded px-2.5 py-1.5 text-sm text-stone-600 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40";
-
   return (
-    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white/90 px-4 py-2 backdrop-blur-sm">
+    <div className="flex justify-between w-full">
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => console.log("save")}
-          className={btnBase}
-        >
+        <Button onClick={() => console.log("save")}>
           Save
-        </button>
+        </Button>
 
         <span className="mx-1 h-4 w-px bg-stone-200" />
 
-        <button
-          type="button"
+        <Button
           onClick={() =>
             dispatch(notebookActions.addCell("code", selectedCellId ?? undefined))
           }
-          className={btnBase}
         >
           + Add cell
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
           disabled={selectedCellId === null}
           onClick={() => {
             if (selectedCellId !== null)
               dispatch(notebookActions.deleteCell(selectedCellId));
           }}
-          className={btnBase}
         >
           Delete cell
-        </button>
+        </Button>
 
         <span className="mx-1 h-4 w-px bg-stone-200" />
 
-        <button
-          type="button"
+        <Button
           disabled={!isCodeCell}
           onClick={() => {
             if (selectedCellId !== null) void runCell(selectedCellId);
           }}
-          className={btnBase}
         >
           ▶ Run
-        </button>
+        </Button>
 
-        <button
-          type="button"
-          onClick={() => dispatch(notebookActions.restartKernel())}
-          className={btnBase}
-        >
+        <Button onClick={() => dispatch(notebookActions.restartKernel())}>
           ↺ Restart
-        </button>
+        </Button>
 
         <span className="mx-1 h-4 w-px bg-stone-200" />
 

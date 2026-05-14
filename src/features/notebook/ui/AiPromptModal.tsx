@@ -1,6 +1,7 @@
 import { useState, type MouseEvent, type KeyboardEvent } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { generateCode } from "../lib/fakeAiCodegen";
+import { Button } from "../../../shared/ui/Button";
 
 interface AiPromptModalProps {
   cellId: string;
@@ -65,22 +66,21 @@ export function AiPromptModal({ cellId, open, onClose }: AiPromptModalProps) {
           autoFocus
         />
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
+          <Button
             onClick={onClose}
             disabled={loading}
-            className="rounded-md px-3 py-1.5 text-sm text-stone-600 hover:bg-stone-100 disabled:opacity-40"
+            className="px-3"
           >
             Cancel
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="primary"
             onClick={() => void handleGenerate()}
             disabled={loading || prompt.trim() === ""}
-            className="rounded-md bg-stone-800 px-3 py-1.5 text-sm text-white hover:bg-stone-700 disabled:opacity-40"
+            className="px-3"
           >
             {loading ? "Generating…" : "Generate"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import type { CodeCell } from "../../../shared/types/notebook";
+import type { CodeCell } from "../model/types";
 import { CellEditor } from "./CellEditor";
 import { CellOutputView } from "./CellOutputView";
 

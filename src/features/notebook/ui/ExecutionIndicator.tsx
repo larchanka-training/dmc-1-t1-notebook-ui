@@ -1,4 +1,4 @@
-import type { CodeCell } from "../../../shared/types/notebook";
+import type { CodeCell } from "../model/types";
 
 interface ExecutionIndicatorProps {
   cell: CodeCell;
@@ -10,7 +10,7 @@ export function ExecutionIndicator({ cell }: ExecutionIndicatorProps) {
   if (executionState === "running" || executionState === "queued") {
     return (
       <span className="select-none whitespace-nowrap font-mono text-xs text-stone-400">
-        In [<span className="animate-pulse">*</span>]:
+        Running [<span className="animate-pulse">*</span>]:
       </span>
     );
   }
@@ -18,14 +18,14 @@ export function ExecutionIndicator({ cell }: ExecutionIndicatorProps) {
   if (executionState === "error") {
     return (
       <span className="select-none whitespace-nowrap font-mono text-xs text-red-500">
-        In [{executionCount ?? " "}]:
+        Exec. times [{executionCount ?? " "}]:
       </span>
     );
   }
 
   return (
     <span className="select-none whitespace-nowrap font-mono text-xs text-stone-400">
-      In [{executionCount === null ? " " : executionCount}]:
+      Exec. times [{executionCount === null ? "-" : executionCount}]
     </span>
   );
 }

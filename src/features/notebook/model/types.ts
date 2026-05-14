@@ -1,9 +1,11 @@
+// ---- Domain model ----
+
 export interface Notebook {
   id: string;
   metadata: NotebookMetadata;
   cells: Cell[];
-  createdAt: string; // ISO timestamp
-  updatedAt: string; // ISO timestamp
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface NotebookMetadata {
@@ -81,6 +83,26 @@ export type MimeBundle = {
   "application/json"?: unknown;
 } & Record<string, unknown>;
 
-export interface NotebookUIState {
-  selectedCellId: string | null;
+// ---- API / Redux state ----
+
+export type NotebookKernelStatus = "idle" | "starting" | "ready" | "error";
+export type NotebookRequestStatus = "idle" | "loading" | "succeeded" | "failed";
+
+export interface NotebookShell {
+  id: string;
+  title: string;
+  language: string;
+  kernelStatus: NotebookKernelStatus;
+  cells: Array<{
+    id: string;
+    type: "markdown" | "code";
+    title: string;
+    preview: string;
+  }>;
+}
+
+export interface NotebookShellState {
+  notebook: NotebookShell | null;
+  status: NotebookRequestStatus;
+  error: string | null;
 }

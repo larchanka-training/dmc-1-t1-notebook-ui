@@ -1,4 +1,4 @@
-import type { StreamOutput } from "../../../shared/types/notebook";
+import type { StreamOutput } from "../model/types";
 
 interface StreamOutputViewProps {
   output: StreamOutput;

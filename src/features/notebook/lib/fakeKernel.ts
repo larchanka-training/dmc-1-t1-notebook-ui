@@ -1,5 +1,5 @@
 // STUB — throwaway, replace with a real kernel connection.
-import type { CellOutput } from "../../../shared/types/notebook";
+import type { CellOutput } from "../model/types";
 
 let counter = 0;
 
