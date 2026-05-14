@@ -20,7 +20,8 @@ export default [
       globals: {
         document: "readonly",
         window: "readonly",
-        console: "readonly"
+        console: "readonly",
+        crypto: "readonly"
       }
     },
     plugins: {
