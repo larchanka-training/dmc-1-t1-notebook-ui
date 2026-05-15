@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { fetchNotebookShell } from "./notebookShellThunks";
+import { fetchNotebook } from "./notebookThunks";
 import type { NotebookShellState } from "./types";
 
 const initialState: NotebookShellState = {
@@ -9,25 +9,25 @@ const initialState: NotebookShellState = {
   error: null
 };
 
-const notebookShellSlice = createSlice({
-  name: "notebookShell",
+const notebookSlice = createSlice({
+  name: "notebook",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchNotebookShell.pending, (state) => {
+      .addCase(fetchNotebook.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchNotebookShell.fulfilled, (state, action) => {
+      .addCase(fetchNotebook.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.notebook = action.payload;
       })
-      .addCase(fetchNotebookShell.rejected, (state, action) => {
+      .addCase(fetchNotebook.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload ?? "Failed to load notebook shell";
+        state.error = action.payload ?? "Failed to load notebook";
       });
   }
 });
 
-export default notebookShellSlice.reducer;
+export default notebookSlice.reducer;

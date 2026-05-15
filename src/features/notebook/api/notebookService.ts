@@ -19,19 +19,19 @@ const mockNotebookShell: NotebookShell = {
       id: "cell-code",
       type: "code",
       title: "First code cell",
-      preview: "console.log(\"Hello from a mocked JavaScript cell\")"
+      preview: 'console.log("Hello from a mocked JavaScript cell")'
     }
   ]
 };
 
-export const notebookShellService = {
-  async getNotebookShell(): Promise<NotebookShell> {
+export const notebookService = {
+  async getNotebook(): Promise<NotebookShell> {
     if (useMockNotebook) {
       return new Promise((resolve) => {
         window.setTimeout(() => resolve(mockNotebookShell), 250);
       });
     }
 
-    return apiClient.get<NotebookShell>("/notebook-shell");
+    return apiClient.get<NotebookShell>("/notebook");
   }
 };

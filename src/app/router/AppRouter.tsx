@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { NotebookShellPage } from "../../features/notebookShell/ui/NotebookShellPage";
+import { NotebookPage } from "../../features/notebook/ui/NotebookPage";
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<NotebookShellPage />} />
+        <Route path="/" element={<NotebookPage />} />
       </Routes>
     </BrowserRouter>
   );
