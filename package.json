@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "globals": "^14.0.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^25.7.0",
     "@types/react": "^18.3.3",
