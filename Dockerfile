@@ -1,10 +1,13 @@
-FROM node:20-slim
+FROM node:20-slim AS builder
 WORKDIR /home/app
 
 COPY package*.json ./
 RUN npm ci --prefer-offline
 
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+FROM nginx:alpine
+COPY --from=builder /home/app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
