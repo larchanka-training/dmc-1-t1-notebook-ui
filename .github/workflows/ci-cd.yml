@@ -4,8 +4,28 @@ on:
   push:
     branches: [main, develop]
     tags: ['v*']
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.*'
+      - 'tsconfig*.json'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/**'
   pull_request:
     branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.*'
+      - 'tsconfig*.json'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io
