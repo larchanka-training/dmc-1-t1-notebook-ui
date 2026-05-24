@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import type { NotebookRequestStatus, NotebookShell } from "../model/types";
 import { NotebookToolbar } from "./NotebookToolbar";
 import { useNotebook, notebookActions } from "../model/notebookContext";

@@ -36,7 +36,7 @@ export function useAutoSave(notebook: Notebook) {
         console.error("Auto-save failed:", e);
       }
     }, AUTOSAVE_DEBOUNCE_MS);
-  }, [notebook.cells]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notebook.cells]);
 
   // Cancel pending work when the component (or provider) unmounts.
   useEffect(() => {
