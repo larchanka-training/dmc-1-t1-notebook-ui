@@ -7,6 +7,7 @@ export function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<NotebookPage />} />
+        <Route path="/:notebookId" element={<NotebookPage />} />
       </Routes>
     </BrowserRouter>
   );

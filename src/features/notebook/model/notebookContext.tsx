@@ -96,7 +96,8 @@ type Action =
   | { type: "START_EXECUTION"; cellId: string; now: string }
   | { type: "FINISH_EXECUTION"; cellId: string; output: CellOutput; executionCount: number; status: "ok" | "error"; now: string }
   | { type: "RESTART_KERNEL"; now: string }
-  | { type: "TOGGLE_OUTPUT_COLLAPSED"; cellId: string; now: string };
+  | { type: "TOGGLE_OUTPUT_COLLAPSED"; cellId: string; now: string }
+  | { type: "UPDATE_TITLE"; title: string; now: string };
 
 // ---- Action creators (inject non-deterministic values) ----
 
@@ -159,6 +160,11 @@ export const notebookActions = {
   toggleOutputCollapsed: (cellId: string): Action => ({
     type: "TOGGLE_OUTPUT_COLLAPSED",
     cellId,
+    now: new Date().toISOString(),
+  }),
+  updateTitle: (title: string): Action => ({
+    type: "UPDATE_TITLE",
+    title,
     now: new Date().toISOString(),
   }),
 };
@@ -282,6 +288,7 @@ function reducer(state: State, action: Action): State {
           executionState,
           output: action.output,
           executionCount: action.executionCount,
+          metadata: { ...cell.metadata, collapsed: false },
         };
       });
       return {
@@ -314,6 +321,16 @@ function reducer(state: State, action: Action): State {
         notebook: { ...state.notebook, cells: newCells, updatedAt: action.now },
       };
     }
+
+    case "UPDATE_TITLE":
+      return {
+        ...state,
+        notebook: {
+          ...state.notebook,
+          metadata: { ...state.notebook.metadata, title: action.title },
+          updatedAt: action.now,
+        },
+      };
 
     default:
       return state;
