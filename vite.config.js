@@ -14,6 +14,10 @@ export default defineConfig(function (_a) {
                     changeOrigin: true
                 }
             }
-        }
+        },
+        test: {
+            environment: "jsdom",
+            globals: true,
+        },
     };
 });

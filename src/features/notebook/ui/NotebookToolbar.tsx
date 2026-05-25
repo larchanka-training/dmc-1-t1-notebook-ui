@@ -1,22 +1,60 @@
+import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useRunCell } from "../model/useRunCell";
+import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
 import { Button } from "../../../shared/ui/Button";
+
+type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
   const runCell = useRunCell();
+  const [saveState, setSaveState] = useState<SaveState>("idle");
 
   const { selectedCellId } = state.ui;
   const cells = state.notebook.cells;
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
   const isCodeCell = activeCell?.type === "code";
+  const isRunning =
+    activeCell?.type === "code" &&
+    (activeCell.executionState === "running" || activeCell.executionState === "queued");
+
+  const handleSave = async () => {
+    setSaveState("saving");
+    try {
+      await notebookService.saveNotebook(state.notebook);
+      setSaveState("saved");
+      setTimeout(() => setSaveState("idle"), 2000);
+    } catch {
+      setSaveState("error");
+      setTimeout(() => setSaveState("idle"), 3000);
+    }
+  };
+
+  const saveLabel =
+    saveState === "saving" ? (
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+        Saving…
+      </span>
+    ) : saveState === "saved" ? (
+      "✓ Saved"
+    ) : saveState === "error" ? (
+      "Save failed"
+    ) : (
+      "Save"
+    );
 
   return (
     <div className="flex justify-between w-full">
       <div className="flex items-center gap-1">
-        <Button onClick={() => console.log("save")}>
-          Save
+        <Button
+          onClick={() => void handleSave()}
+          disabled={saveState === "saving"}
+          className={saveState === "saved" ? "text-green-700" : saveState === "error" ? "text-red-600" : ""}
+        >
+          {saveLabel}
         </Button>
 
         <span className="mx-1 h-4 w-px bg-stone-200" />
@@ -42,12 +80,19 @@ export function NotebookToolbar() {
         <span className="mx-1 h-4 w-px bg-stone-200" />
 
         <Button
-          disabled={!isCodeCell}
+          disabled={!isCodeCell || isRunning}
           onClick={() => {
             if (selectedCellId !== null) void runCell(selectedCellId);
           }}
         >
-          ▶ Run
+          {isRunning ? (
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+              Running
+            </span>
+          ) : (
+            "▶ Run"
+          )}
         </Button>
 
         <Button onClick={() => dispatch(notebookActions.restartKernel())}>

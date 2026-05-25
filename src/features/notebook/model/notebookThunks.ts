@@ -5,11 +5,11 @@ import type { NotebookShell } from "./types";
 
 export const fetchNotebook = createAsyncThunk<
   NotebookShell,
-  void,
+  string,
   { rejectValue: string }
->("notebook/fetchNotebook", async (_, { rejectWithValue }) => {
+>("notebook/fetchNotebook", async (id, { rejectWithValue }) => {
   try {
-    return await notebookService.getNotebook();
+    return await notebookService.getNotebook(id);
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : "Failed to load notebook"
