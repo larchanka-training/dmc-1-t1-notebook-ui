@@ -7,6 +7,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { randomUUID } from "../../../shared/lib/uuid";
+
 import type {
   Cell,
   CodeCell,
@@ -104,7 +106,7 @@ type Action =
 export const notebookActions = {
   addCell: (cellType: "code" | "markdown" | "raw", afterCellId?: string): Action => ({
     type: "ADD_CELL",
-    newCell: buildCell(cellType, crypto.randomUUID()),
+    newCell: buildCell(cellType, randomUUID()),
     afterCellId,
     now: new Date().toISOString(),
   }),
