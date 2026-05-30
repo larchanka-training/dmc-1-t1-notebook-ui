@@ -3,6 +3,7 @@ import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useRunCell } from "../model/useRunCell";
 import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
+import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "../../../shared/ui/Button";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -57,7 +58,7 @@ export function NotebookToolbar() {
           {saveLabel}
         </Button>
 
-        <span className="mx-1 h-4 w-px bg-stone-200" />
+        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <Button
           onClick={() =>
@@ -77,7 +78,7 @@ export function NotebookToolbar() {
           Delete cell
         </Button>
 
-        <span className="mx-1 h-4 w-px bg-stone-200" />
+        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <Button
           disabled={!isCodeCell || isRunning}
@@ -99,7 +100,7 @@ export function NotebookToolbar() {
           ↺ Restart
         </Button>
 
-        <span className="mx-1 h-4 w-px bg-stone-200" />
+        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <select
           value={activeCell?.type ?? "code"}
@@ -114,7 +115,7 @@ export function NotebookToolbar() {
               );
             }
           }}
-          className="rounded border border-stone-200 px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40"
+          className="rounded border border-stone-200 px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-stone-500"
         >
           <option value="code">Code</option>
           <option value="markdown">Markdown</option>
@@ -122,7 +123,11 @@ export function NotebookToolbar() {
         </select>
       </div>
 
-      <KernelStatus />
+      <div className="flex items-center gap-2">
+        <KernelStatus />
+        <span className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
+        <ThemeToggle />
+      </div>
     </div>
   );
 }

@@ -10,9 +10,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  ghost: "text-stone-600 hover:bg-stone-100 hover:text-stone-700",
-  primary: "bg-stone-800 text-white hover:bg-stone-700",
-  text: "text-stone-400 hover:text-stone-600",
+  ghost: "text-stone-600 hover:bg-stone-100 hover:text-stone-700 dark:text-stone-300 dark:hover:bg-stone-700 dark:hover:text-stone-100",
+  primary: "bg-stone-800 text-white hover:bg-stone-700 dark:bg-stone-600 dark:hover:bg-stone-500",
+  text: "text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
