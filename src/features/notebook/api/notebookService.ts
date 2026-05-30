@@ -1,4 +1,5 @@
 import { apiClient } from "../../../shared/api/apiClient";
+import { randomUUID } from "../../../shared/lib/uuid";
 import type { Notebook, NotebookShell } from "../model/types";
 
 const USE_MOCK = true;
@@ -83,11 +84,11 @@ const mockService = {
   async createNotebook(title = "Untitled Notebook"): Promise<Notebook> {
     const now = new Date().toISOString();
     const notebook: Notebook = {
-      id: `notebook-${crypto.randomUUID().slice(0, 8)}`,
+      id: `notebook-${randomUUID().slice(0, 8)}`,
       metadata: { title, custom: { language: "JavaScript" } },
       cells: [
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           type: "code",
           source: "",
           executionCount: null,
