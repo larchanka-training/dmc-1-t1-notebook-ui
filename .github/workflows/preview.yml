@@ -1,0 +1,97 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main, develop]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'public/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.*'
+              - 'tsconfig*.json'
+
+  deploy-preview:
+    name: Deploy Preview
+    needs: changes
+    if: github.event.action != 'closed' && needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build with PR base path
+        run: npm run build -- --base=/pr-${{ github.event.pull_request.number }}/
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      - name: Sync to S3
+        run: |
+          aws s3 sync dist/ s3://${{ vars.S3_PREVIEW_BUCKET }}/pr-${{ github.event.pull_request.number }}/ \
+            --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.CF_DISTRIBUTION_ID }} \
+            --paths "/pr-${{ github.event.pull_request.number }}/*"
+
+      - name: Comment PR with preview URL
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚀 **Preview deployed:** https://${{ vars.CF_DOMAIN }}/pr-${{ github.event.pull_request.number }}/
+            Updated: ${{ github.event.pull_request.updated_at }}
+
+  cleanup-preview:
+    name: Cleanup Preview
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      - name: Delete S3 prefix
+        run: |
+          aws s3 rm s3://${{ vars.S3_PREVIEW_BUCKET }}/pr-${{ github.event.pull_request.number }}/ \
+            --recursive
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.CF_DISTRIBUTION_ID }} \
+            --paths "/pr-${{ github.event.pull_request.number }}/*"
