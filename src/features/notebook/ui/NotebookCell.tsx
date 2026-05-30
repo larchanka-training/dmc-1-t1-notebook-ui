@@ -30,12 +30,12 @@ export function NotebookCell({ cell, index, total }: NotebookCellProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const isSelectedClassNames = isSelected
-    ? "border-stone-300 shadow-sm"
-    : "border-stone-200 hover:border-stone-300";
+    ? "border-stone-300 dark:border-stone-500 shadow-sm"
+    : "border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600";
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-md border transition-shadow bg-[#fbfbfa] ${isSelectedClassNames}`}
+      className={`group relative overflow-hidden rounded-md border transition-shadow bg-[#fbfbfa] dark:bg-stone-800 ${isSelectedClassNames}`}
       onClick={() => dispatch(notebookActions.selectCell(cell.id))}
     >
       {/* Active cell left accent */}
@@ -45,9 +45,9 @@ export function NotebookCell({ cell, index, total }: NotebookCellProps) {
         }`}
       />
 
-      <div className="border-b border-stone-200">
+      <div className="border-b border-stone-200 dark:border-stone-700">
         <div className="flex items-center justify-between px-2 py-1">
-          <div className="rounded-full bg-stone-200 px-3 py-1 text-xs font-medium text-stone-600 flex items-center">
+          <div className="rounded-full bg-stone-200 dark:bg-stone-700 px-3 py-1 text-xs font-medium text-stone-600 dark:text-stone-300 flex items-center">
             {cell.type}
           </div>
 

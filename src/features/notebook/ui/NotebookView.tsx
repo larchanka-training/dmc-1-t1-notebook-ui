@@ -121,12 +121,12 @@ export function NotebookView({
   // ---- render ----
 
   return (
-    <main className="mx-auto flex h-screen w-full max-w-5xl flex-col px-4 py-4 text-stone-800 sm:px-6 lg:px-8 flex-1">
-      <section className="mb-4 flex flex-col gap-4 border-b border-stone-200 pb-2 sm:flex-row sm:items-start sm:justify-between">
+    <main className="mx-auto flex h-screen w-full max-w-5xl flex-col px-4 py-4 text-stone-800 dark:text-stone-100 sm:px-6 lg:px-8 flex-1">
+      <section className="mb-4 flex flex-col gap-4 border-b border-stone-200 dark:border-stone-700 pb-2 sm:flex-row sm:items-start sm:justify-between">
 
         {/* Title area */}
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
             Notebook
           </p>
           {isNotebookLoading ? (
@@ -142,7 +142,7 @@ export function NotebookView({
                 onKeyDown={handleTitleKeyDown}
                 disabled={isSavingTitle}
                 autoFocus
-                className="text-2xl font-semibold tracking-tight text-stone-900 border-b-2 border-stone-400 bg-transparent outline-none focus:border-stone-700 disabled:opacity-60 min-w-0 w-72"
+                className="text-2xl font-semibold tracking-tight text-stone-900 dark:text-stone-100 border-b-2 border-stone-400 dark:border-stone-500 bg-transparent outline-none focus:border-stone-700 dark:focus:border-stone-400 disabled:opacity-60 min-w-0 w-72"
               />
               {isSavingTitle && (
                 <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
@@ -150,7 +150,7 @@ export function NotebookView({
             </div>
           ) : (
             <div className="flex items-start gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight text-stone-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-stone-900 dark:text-stone-100">
                 {state.notebook.metadata.title}
               </h1>
               <button
@@ -170,7 +170,7 @@ export function NotebookView({
             disabled={isListLoading}
             value={selectedId ?? ""}
             onChange={(e) => onSelectNotebook(e.target.value)}
-            className="w-56 rounded border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-56 rounded border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40 disabled:cursor-not-allowed dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-stone-500"
           >
             {isListLoading ? (
               <option value="">Loading notebooks…</option>
@@ -209,14 +209,14 @@ export function NotebookView({
         </p>
       ) : null}
 
-      <section className="flex flex-col flex-1 min-h-0 rounded-lg border border-stone-200 bg-white shadow-sm">
-        <div className="flex flex-wrap gap-3 border-b border-stone-200 px-4 py-2">
+      <section className="flex flex-col flex-1 min-h-0 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-sm">
+        <div className="flex flex-wrap gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-2">
           <NotebookToolbar />
         </div>
 
         {isNotebookLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="flex flex-col items-center gap-2 text-stone-400">
+            <div className="flex flex-col items-center gap-2 text-stone-400 dark:text-stone-500">
               <svg className="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -242,12 +242,12 @@ export function NotebookView({
           onClick={() => !isDeleting && setShowDeleteModal(false)}
         >
           <div
-            className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
+            className="w-full max-w-sm rounded-lg bg-white dark:bg-stone-800 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-semibold text-stone-900">Delete notebook?</h2>
-            <p className="mt-2 text-sm text-stone-500">
-              <span className="font-medium text-stone-700">
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">Delete notebook?</h2>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
+              <span className="font-medium text-stone-700 dark:text-stone-300">
                 "{state.notebook.metadata.title}"
               </span>{" "}
               will be permanently deleted. This action cannot be undone.
