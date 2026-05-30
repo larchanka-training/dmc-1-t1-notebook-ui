@@ -4,7 +4,7 @@ import { NotebookPage } from "../../features/notebook/ui/NotebookPage";
 
 export function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<NotebookPage />} />
         <Route path="/:notebookId" element={<NotebookPage />} />
