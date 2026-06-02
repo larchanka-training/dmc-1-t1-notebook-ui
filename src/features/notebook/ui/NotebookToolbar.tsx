@@ -11,6 +11,7 @@ export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
   const runCell = useRunCell();
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [pendingDeleteCellId, setPendingDeleteCellId] = useState<string | null>(null);
 
   const { selectedCellId } = state.ui;
   const cells = state.notebook.cells;
@@ -70,8 +71,7 @@ export function NotebookToolbar() {
         <Button
           disabled={selectedCellId === null}
           onClick={() => {
-            if (selectedCellId !== null)
-              dispatch(notebookActions.deleteCell(selectedCellId));
+            if (selectedCellId !== null) setPendingDeleteCellId(selectedCellId);
           }}
         >
           Delete cell
@@ -123,6 +123,33 @@ export function NotebookToolbar() {
       </div>
 
       <KernelStatus />
+
+      {pendingDeleteCellId !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+          onClick={() => setPendingDeleteCellId(null)}
+        >
+          <div
+            className="w-80 rounded-xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-stone-900">Delete cell?</h2>
+            <p className="mt-1 text-sm text-stone-500">This cannot be undone.</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button onClick={() => setPendingDeleteCellId(null)}>Cancel</Button>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  dispatch(notebookActions.deleteCell(pendingDeleteCellId));
+                  setPendingDeleteCellId(null);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

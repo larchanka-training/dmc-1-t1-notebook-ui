@@ -44,6 +44,7 @@ function buildCell(cellType: "code" | "markdown" | "raw", id: string): Cell {
         executionCount: null,
         executionState: "idle",
         output: emptyOutput(),
+        metadata: { collapsed: true },
       };
     case "markdown":
       return { id, source: "", type: "markdown" };
