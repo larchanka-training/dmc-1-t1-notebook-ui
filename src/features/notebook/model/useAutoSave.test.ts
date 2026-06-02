@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useAutoSave } from "./useAutoSave";
 import * as notebookServiceModule from "../api/notebookService";
-import type { Notebook, Cell } from "./types";
+import type { Notebook, Cell, CodeCell } from "./types";
 
 vi.mock("../api/notebookService", () => ({
   notebookService: { saveNotebook: vi.fn() },
@@ -20,7 +20,7 @@ function makeNotebook(cells: Cell[] = []): Notebook {
   };
 }
 
-function makeCodeCell(id: string, source = ""): Cell {
+function makeCodeCell(id: string, source = ""): CodeCell {
   return {
     id,
     type: "code",

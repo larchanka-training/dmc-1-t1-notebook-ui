@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { reducer } from "./notebookContext";
-import type { Cell, CodeCell, Notebook } from "./types";
+import type { Cell, CodeCell, Notebook, StreamOutput } from "./types";
 
 const NOW = "2025-01-01T00:00:00.000Z";
 
@@ -210,7 +210,7 @@ describe("notebookContext reducer", () => {
       const next = reducer(state, { type: "START_EXECUTION", cellId: "c1", now: NOW });
       const updated = next.notebook.cells[0] as CodeCell;
       expect(updated.executionState).toBe("running");
-      expect(updated.output.text).toBe("");
+      expect((updated.output as StreamOutput).text).toBe("");
     });
   });
 
@@ -254,7 +254,7 @@ describe("notebookContext reducer", () => {
       const next = reducer(state, { type: "QUEUE_CELL", cellId: "c1", now: NOW });
       const cell = next.notebook.cells[0] as CodeCell;
       expect(cell.executionState).toBe("queued");
-      expect(cell.output.text).toBe("");
+      expect((cell.output as StreamOutput).text).toBe("");
     });
   });
 

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act, waitFor } from "@testing-library/react";
-import { createElement } from "react";
 import { ExecutorProvider, useExecutor } from "./useNotebookExecutor";
 import { NotebookProvider } from "./notebookContext";
 import type { Notebook } from "./types";
@@ -54,11 +53,11 @@ function StatusProbe({ onMount }: { onMount: (e: ReturnType<typeof useExecutor>)
 function renderExecutor(notebook = makeNotebook()) {
   let captured: ReturnType<typeof useExecutor> | null = null;
   render(
-    createElement(NotebookProvider, { initialNotebook: notebook, initialSelectedCellId: null },
-      createElement(ExecutorProvider, null,
-        createElement(StatusProbe, { onMount: (e) => { captured = e; } })
-      )
-    )
+    <NotebookProvider initialNotebook={notebook} initialSelectedCellId={null}>
+      <ExecutorProvider>
+        <StatusProbe onMount={(e) => { captured = e; }} />
+      </ExecutorProvider>
+    </NotebookProvider>
   );
   return { getExecutor: () => captured! };
 }

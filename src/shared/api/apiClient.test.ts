@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "./apiClient";
 
+type FetchCall = [url: string, init: { method?: string; headers?: Record<string, string>; body?: string }];
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -38,18 +40,18 @@ describe("apiClient", () => {
       const spy = vi.fn(() => Promise.resolve(jsonResponse({ created: true })));
       vi.stubGlobal("fetch", spy);
       await apiClient.post("/items", { name: "foo" });
-      const [url, opts] = spy.mock.calls[0];
+      const [url, opts] = spy.mock.calls[0] as unknown as FetchCall;
       expect(url).toContain("/items");
       expect(opts.method).toBe("POST");
       expect(opts.headers).toMatchObject({ "Content-Type": "application/json" });
-      expect(JSON.parse(opts.body)).toEqual({ name: "foo" });
+      expect(JSON.parse(opts.body as string)).toEqual({ name: "foo" });
     });
 
     it("DELETE request uses DELETE method", async () => {
       const spy = vi.fn(() => Promise.resolve(new Response(null, { status: 204 })));
       vi.stubGlobal("fetch", spy);
       await apiClient.delete("/items/1");
-      expect(spy.mock.calls[0][1].method).toBe("DELETE");
+      expect((spy.mock.calls[0] as unknown as FetchCall)[1].method).toBe("DELETE");
     });
   });
 
@@ -111,8 +113,8 @@ describe("apiClient", () => {
       vi.stubGlobal("fetch", spy);
       // Two concurrent requests that both 401
       await Promise.allSettled([apiClient.get("/a"), apiClient.get("/b")]);
-      const refreshCalls = spy.mock.calls.filter(([url]) =>
-        (url as string).includes("/auth/refresh")
+      const refreshCalls = (spy.mock.calls as unknown as [string][]).filter(([url]) =>
+        url.includes("/auth/refresh")
       );
       expect(refreshCalls.length).toBeLessThanOrEqual(1);
     });

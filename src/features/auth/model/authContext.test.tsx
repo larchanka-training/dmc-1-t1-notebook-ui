@@ -48,7 +48,7 @@ describe("AuthProvider", () => {
   });
 
   it("becomes authenticated when getMe succeeds", async () => {
-    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", displayName: "Alice" });
+    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", display_name: "Alice", created_at: "" });
     renderProvider();
     await waitFor(() =>
       expect(screen.getByTestId("status").textContent).toBe("authenticated")
@@ -66,7 +66,7 @@ describe("AuthProvider", () => {
 
   it("login sets user and authenticated status", async () => {
     mockAuthService.getMe.mockRejectedValue(new Error("no session"));
-    mockAuthService.login.mockResolvedValue({ id: "u2", email: "a@b.com", displayName: "Alice" });
+    mockAuthService.login.mockResolvedValue({ id: "u2", email: "a@b.com", display_name: "Alice", created_at: "" });
     renderProvider();
     await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("unauthenticated"));
 
@@ -79,7 +79,7 @@ describe("AuthProvider", () => {
 
   it("register sets user and authenticated status", async () => {
     mockAuthService.getMe.mockRejectedValue(new Error("no session"));
-    mockAuthService.register.mockResolvedValue({ id: "u3", email: "a@b.com", displayName: "Alice" });
+    mockAuthService.register.mockResolvedValue({ id: "u3", email: "a@b.com", display_name: "Alice", created_at: "" });
     renderProvider();
     await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("unauthenticated"));
 
@@ -90,7 +90,7 @@ describe("AuthProvider", () => {
   });
 
   it("logout clears user and sets unauthenticated", async () => {
-    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", displayName: "Alice" });
+    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", display_name: "Alice", created_at: "" });
     mockAuthService.logout.mockResolvedValue(undefined);
     renderProvider();
     await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("authenticated"));
@@ -103,7 +103,7 @@ describe("AuthProvider", () => {
   });
 
   it("clears auth state when auth:session-expired event fires", async () => {
-    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", displayName: "Alice" });
+    mockAuthService.getMe.mockResolvedValue({ id: "u1", email: "a@b.com", display_name: "Alice", created_at: "" });
     renderProvider();
     await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("authenticated"));
 
