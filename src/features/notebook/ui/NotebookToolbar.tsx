@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
-import { useRunCell } from "../model/useRunCell";
 import { useExecutor } from "../model/useNotebookExecutor";
 import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
@@ -10,7 +9,6 @@ type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
-  const runCell = useRunCell();
   const { runAll, interruptWorker, isRunning } = useExecutor();
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [pendingDeleteCellId, setPendingDeleteCellId] = useState<string | null>(null);
@@ -18,10 +16,6 @@ export function NotebookToolbar() {
   const { selectedCellId } = state.ui;
   const cells = state.notebook.cells;
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
-  const isCodeCell = activeCell?.type === "code";
-  const isActiveCellRunning =
-    activeCell?.type === "code" &&
-    (activeCell.executionState === "running" || activeCell.executionState === "queued");
 
   const handleSave = async () => {
     setSaveState("saving");
@@ -80,22 +74,6 @@ export function NotebookToolbar() {
         </Button>
 
         <span className="mx-1 h-4 w-px bg-stone-200" />
-
-        <Button
-          disabled={!isCodeCell || isActiveCellRunning}
-          onClick={() => {
-            if (selectedCellId !== null) void runCell(selectedCellId);
-          }}
-        >
-          {isActiveCellRunning ? (
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
-              Running
-            </span>
-          ) : (
-            "▶ Run"
-          )}
-        </Button>
 
         <Button
           disabled={isRunning}
