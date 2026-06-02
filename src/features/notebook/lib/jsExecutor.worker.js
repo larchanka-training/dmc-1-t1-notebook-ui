@@ -102,7 +102,17 @@ const _nativeFetch = self.fetch ? self.fetch.bind(self) : null;
 if (_nativeFetch) {
   self.fetch = function (...args) {
     asyncStart();
-    return _nativeFetch(...args).finally(() => asyncEnd());
+    const promise = _nativeFetch(...args);
+    // Return the original promise so the user's .then()/.catch() chains attach
+    // to it directly. We track completion via a side-effect that defers asyncEnd()
+    // to a macrotask (setTimeout 0). All .then() chains are microtasks and flush
+    // before any macrotask fires, so by the time asyncEnd() runs the user's
+    // handlers have had a chance to register new async work (e.g. a setTimeout).
+    promise.then(
+      () => _nativeSetTimeout(asyncEnd, 0),
+      () => _nativeSetTimeout(asyncEnd, 0),
+    );
+    return promise;
   };
 }
 

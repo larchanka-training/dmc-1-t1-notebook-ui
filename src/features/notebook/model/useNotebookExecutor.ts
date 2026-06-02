@@ -122,6 +122,7 @@ export function ExecutorProvider({ children }: ExecutorProviderProps) {
 
       if (msg.type === "CELL_EXECUTION_COMPLETE") {
         const pending = pendingRef.current.get(msg.cellId);
+        if (!pending) return; // spurious COMPLETE after interrupt or duplicate fire
         pendingRef.current.delete(msg.cellId);
 
         const allText = [
