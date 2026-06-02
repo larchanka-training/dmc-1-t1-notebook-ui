@@ -10,15 +10,17 @@ export function useAutoSave(notebook: Notebook) {
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortController = useRef<AbortController | null>(null);
-  const isFirstRender = useRef(true);
+
+  // Capture the cells reference at mount time. The reducer always creates a new array on
+  // any mutation, so reference equality means "no user edit yet". This correctly skips the
+  // initial effect run AND React StrictMode's simulated double-mount (both see the same
+  // reference), while still firing for every real user change.
+  const mountCellsRef = useRef(notebook.cells);
 
   // Trigger on every cells reference change (any cell edit, add, delete, move, type change).
   // Title edits do not change notebook.cells, so they don't trigger this.
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    if (notebook.cells === mountCellsRef.current) return;
 
     // Reset the debounce window.
     if (debounceTimer.current !== null) clearTimeout(debounceTimer.current);
