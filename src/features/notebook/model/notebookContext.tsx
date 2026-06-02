@@ -180,7 +180,7 @@ export const notebookActions = {
 
 // ---- Reducer (pure) ----
 
-function reducer(state: State, action: Action): State {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "ADD_CELL": {
       const cells = [...state.notebook.cells];

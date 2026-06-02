@@ -116,6 +116,24 @@ if (_nativeFetch) {
   };
 }
 
+// --- Patch Response body-consumption methods ---
+// response.json() / .text() etc. are async (ReadableStream read) and may resolve
+// in a later event-loop turn than the fetch promise itself.  If we don't track them,
+// the fetch's asyncEnd (deferred via setTimeout 0) fires before the body is parsed
+// and the cell is marked complete before the user's .then() chain runs.
+if (typeof Response !== 'undefined') {
+  ['json', 'text', 'blob', 'arrayBuffer', 'formData'].forEach(function (method) {
+    const _native = Response.prototype[method];
+    Response.prototype[method] = function () {
+      asyncStart();
+      return _native.apply(this, arguments).then(
+        function (v) { _nativeSetTimeout(asyncEnd, 0); return v; },
+        function (e) { _nativeSetTimeout(asyncEnd, 0); throw e; },
+      );
+    };
+  });
+}
+
 // --- Snapshot / rollback user vars ---
 function snapshotUserVars() {
   const snap = {};

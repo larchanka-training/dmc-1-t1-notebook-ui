@@ -46,6 +46,7 @@ async function request<T>(
 
   if (!response.ok) {
     let message: string;
+    const responseClone = response.clone();
     try {
       const data = await response.json() as Record<string, unknown>;
       const detail = data.detail;
@@ -61,7 +62,7 @@ async function request<T>(
         message = (detail as string) ?? (data.message as string) ?? `Request failed with status ${response.status}`;
       }
     } catch {
-      message = (await response.text()) || `Request failed with status ${response.status}`;
+      message = (await responseClone.text()) || `Request failed with status ${response.status}`;
     }
     throw new Error(message);
   }
