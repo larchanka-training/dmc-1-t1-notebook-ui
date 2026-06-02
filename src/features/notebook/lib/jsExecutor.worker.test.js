@@ -2,7 +2,7 @@
 // Tests for jsExecutor.worker.js using vm.runInNewContext so the worker code
 // runs in an isolated context where `self` is our mock sandbox and
 // `(0, eval)(userCode)` evaluates in that same sandbox — matching browser behavior.
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { runInNewContext } from "vm";
 import { fileURLToPath } from "url";
@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 const WORKER_CODE = readFileSync(resolve(__dirname, "./jsExecutor.worker.js"), "utf-8");
 
 // A fresh MockResponse class per env so prototype patches don't bleed between tests.
-function createMockResponseClass(bodyJson) {
+function createMockResponseClass() {
   return class MockResponse {
     constructor(body) {
       this._body = typeof body === "string" ? body : JSON.stringify(body);
@@ -88,12 +88,12 @@ function runCell(ctx, posted, code, cellId = "test-cell") {
 
     ctx.onmessage({ data: { type: "EXECUTE_CELL", cellId, code } });
 
-    const timer = setTimeout(() => {
+    const timer = globalThis.setTimeout(() => {
       ctx.postMessage = originalPM;
       reject(new Error(`Timeout waiting for completion.\nMessages so far: ${JSON.stringify(posted.slice(startIdx), null, 2)}`));
     }, 8000);
     // If we resolve early, clean up the timeout (avoids Vitest warning).
-    resolve = ((orig) => (msgs) => { clearTimeout(timer); orig(msgs); })(resolve);
+    resolve = ((orig) => (msgs) => { globalThis.clearTimeout(timer); orig(msgs); })(resolve);
   });
 }
 

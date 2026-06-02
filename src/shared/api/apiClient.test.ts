@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "./apiClient";
 
-function mockFetch(responses: Response[]) {
-  let call = 0;
-  return vi.fn(() => Promise.resolve(responses[call++ % responses.length]));
-}
-
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
