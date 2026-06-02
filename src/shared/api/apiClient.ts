@@ -73,5 +73,6 @@ async function request<T>(
 export const apiClient = {
   get: <T>(path: string, signal?: AbortSignal) => request<T>("GET", path, undefined, signal),
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
+  put: <T>(path: string, body?: unknown, signal?: AbortSignal) => request<T>("PUT", path, body, signal),
   delete: <T>(path: string) => request<T>("DELETE", path),
 };

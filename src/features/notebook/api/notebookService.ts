@@ -2,7 +2,7 @@ import { apiClient } from "../../../shared/api/apiClient";
 import { randomUUID } from "../../../shared/lib/uuid";
 import type { Notebook, NotebookShell } from "../model/types";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 const STORAGE_KEY = "dmc:notebooks";
 const MOCK_DELAY_MS = 250;
 
@@ -126,16 +126,20 @@ const apiService = {
     return apiClient.get<Notebook>(`/notebooks/${id}`);
   },
 
-  async saveNotebook(notebook: Notebook, _signal?: AbortSignal): Promise<Notebook> {
-    return apiClient.get<Notebook>(`/notebooks/${notebook.id}`); // TODO: use PUT + pass signal to fetch
+  async saveNotebook(notebook: Notebook, signal?: AbortSignal): Promise<Notebook> {
+    return apiClient.put<Notebook>(
+      `/notebooks/${notebook.id}`,
+      { metadata: { title: notebook.metadata.title }, cells: notebook.cells },
+      signal,
+    );
   },
 
-  async createNotebook(_title = "Untitled Notebook"): Promise<Notebook> {
-    return apiClient.get<Notebook>("/notebooks");
+  async createNotebook(title = "Untitled Notebook"): Promise<Notebook> {
+    return apiClient.post<Notebook>("/notebooks", { title });
   },
 
   async deleteNotebook(id: string): Promise<void> {
-    await apiClient.get(`/notebooks/${id}`); // TODO: use DELETE method
+    await apiClient.delete(`/notebooks/${id}`);
   },
 };
 
