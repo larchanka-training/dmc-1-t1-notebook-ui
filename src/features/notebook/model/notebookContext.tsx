@@ -99,6 +99,7 @@ type Action =
   | { type: "START_EXECUTION"; cellId: string; now: string }
   | { type: "FINISH_EXECUTION"; cellId: string; output: CellOutput; executionCount: number; status: "ok" | "error"; now: string }
   | { type: "RESTART_KERNEL"; now: string }
+  | { type: "QUEUE_CELL"; cellId: string; now: string }
   | { type: "TOGGLE_OUTPUT_COLLAPSED"; cellId: string; now: string }
   | { type: "UPDATE_TITLE"; title: string; now: string };
 
@@ -158,6 +159,11 @@ export const notebookActions = {
   }),
   restartKernel: (): Action => ({
     type: "RESTART_KERNEL",
+    now: new Date().toISOString(),
+  }),
+  queueCell: (cellId: string): Action => ({
+    type: "QUEUE_CELL",
+    cellId,
     now: new Date().toISOString(),
   }),
   toggleOutputCollapsed: (cellId: string): Action => ({
@@ -293,6 +299,17 @@ function reducer(state: State, action: Action): State {
           executionCount: action.executionCount,
           metadata: { ...cell.metadata, collapsed: false },
         };
+      });
+      return {
+        ...state,
+        notebook: { ...state.notebook, cells: newCells, updatedAt: action.now },
+      };
+    }
+
+    case "QUEUE_CELL": {
+      const newCells = state.notebook.cells.map((cell): Cell => {
+        if (cell.id !== action.cellId || cell.type !== "code") return cell;
+        return { ...cell, executionState: "queued", output: emptyOutput() };
       });
       return {
         ...state,

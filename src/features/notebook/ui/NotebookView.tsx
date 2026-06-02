@@ -4,6 +4,7 @@ import { NotebookToolbar } from "./NotebookToolbar";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useAutoSave } from "../model/useAutoSave";
 import { NotebookCell } from "./NotebookCell";
+import { ExecutorProvider } from "../model/useNotebookExecutor";
 
 interface NotebookViewProps {
   notebookStatus: NotebookRequestStatus;
@@ -32,6 +33,7 @@ export function NotebookView({
   const isNotebookLoading = notebookStatus === "loading" || notebookStatus === "idle";
 
   return (
+    <ExecutorProvider>
     <main className="flex flex-1 h-screen flex-col px-6 py-4 text-stone-800 overflow-hidden">
       <section className="mb-4">
         {isNotebookLoading ? (
@@ -77,5 +79,6 @@ export function NotebookView({
         )}
       </section>
     </main>
+    </ExecutorProvider>
   );
 }

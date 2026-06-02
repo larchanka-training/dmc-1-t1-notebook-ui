@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useRunCell } from "../model/useRunCell";
+import { useExecutor } from "../model/useNotebookExecutor";
 import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
 import { Button } from "../../../shared/ui/Button";
@@ -10,6 +11,7 @@ type SaveState = "idle" | "saving" | "saved" | "error";
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
   const runCell = useRunCell();
+  const { runAll, interruptWorker, isRunning } = useExecutor();
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [pendingDeleteCellId, setPendingDeleteCellId] = useState<string | null>(null);
 
@@ -17,7 +19,7 @@ export function NotebookToolbar() {
   const cells = state.notebook.cells;
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
   const isCodeCell = activeCell?.type === "code";
-  const isRunning =
+  const isActiveCellRunning =
     activeCell?.type === "code" &&
     (activeCell.executionState === "running" || activeCell.executionState === "queued");
 
@@ -80,12 +82,12 @@ export function NotebookToolbar() {
         <span className="mx-1 h-4 w-px bg-stone-200" />
 
         <Button
-          disabled={!isCodeCell || isRunning}
+          disabled={!isCodeCell || isActiveCellRunning}
           onClick={() => {
             if (selectedCellId !== null) void runCell(selectedCellId);
           }}
         >
-          {isRunning ? (
+          {isActiveCellRunning ? (
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
               Running
@@ -95,7 +97,25 @@ export function NotebookToolbar() {
           )}
         </Button>
 
-        <Button onClick={() => dispatch(notebookActions.restartKernel())}>
+        <Button
+          disabled={isRunning}
+          onClick={() => void runAll()}
+        >
+          ▶▶ Run All
+        </Button>
+
+        <Button
+          disabled={!isRunning}
+          className={isRunning ? "text-red-600 hover:text-red-700" : ""}
+          onClick={() => interruptWorker()}
+        >
+          ■ Stop
+        </Button>
+
+        <Button
+          disabled={isRunning}
+          onClick={() => dispatch(notebookActions.restartKernel())}
+        >
           ↺ Restart
         </Button>
 
