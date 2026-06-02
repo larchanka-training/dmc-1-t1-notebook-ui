@@ -52,7 +52,7 @@ function toShell(notebook: Notebook): NotebookShell {
 
 const mockService = {
   async getAllNotebooks(): Promise<NotebookShell[]> {
-    return delay(Object.values(readStore()).map(toShell));
+    return delay(Object.values(readStore()).map(toShell).reverse());
   },
 
   async getNotebook(id: string): Promise<NotebookShell> {
