@@ -56,7 +56,7 @@ jobs:
   lint:
     name: Lint (ESLint)
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.code == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -72,7 +72,7 @@ jobs:
   test:
     name: Test (vitest)
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.code == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -89,7 +89,7 @@ jobs:
     name: Build & Push Docker image
     runs-on: ubuntu-latest
     needs: [changes, lint, test]
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.code == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
