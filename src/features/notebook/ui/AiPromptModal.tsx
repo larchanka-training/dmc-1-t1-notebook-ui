@@ -1,6 +1,6 @@
 import { useState, type MouseEvent, type KeyboardEvent } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
-import { generateCode } from "../lib/fakeAiCodegen";
+import { generateCode } from "../api/aiService";
 import { Button } from "../../../shared/ui/Button";
 
 interface AiPromptModalProps {
@@ -10,7 +10,7 @@ interface AiPromptModalProps {
 }
 
 export function AiPromptModal({ cellId, open, onClose }: AiPromptModalProps) {
-  const { dispatch } = useNotebook();
+  const { state, dispatch } = useNotebook();
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +20,7 @@ export function AiPromptModal({ cellId, open, onClose }: AiPromptModalProps) {
     if (prompt.trim() === "" || loading) return;
     setLoading(true);
     try {
-      const code = await generateCode(prompt);
+      const code = await generateCode(prompt, state.notebook.cells, cellId);
       dispatch(notebookActions.updateSource(cellId, code));
       onClose();
       setPrompt("");
