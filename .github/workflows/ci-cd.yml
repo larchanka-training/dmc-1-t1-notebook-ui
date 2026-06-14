@@ -154,7 +154,11 @@ jobs:
           aws ecs update-service \
             --cluster dmc-1-t1-notebook-dev \
             --service dmc-1-t1-notebook-dev-ui \
-            --task-definition "$NEW_ARN"
+            --task-definition "$NEW_ARN" \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster dmc-1-t1-notebook-dev \
+            --services dmc-1-t1-notebook-dev-ui
 
   deploy-prod:
     name: Deploy to Prod (ECS)
@@ -187,7 +191,11 @@ jobs:
           aws ecs update-service \
             --cluster dmc-1-t1-notebook-prod \
             --service dmc-1-t1-notebook-prod-ui \
-            --task-definition "$NEW_ARN"
+            --task-definition "$NEW_ARN" \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster dmc-1-t1-notebook-prod \
+            --services dmc-1-t1-notebook-prod-ui
 
   notify-mono:
     name: Notify Mono to Update Submodules
