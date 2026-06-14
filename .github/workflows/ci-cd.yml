@@ -140,7 +140,8 @@ jobs:
 
       - name: Deploy UI to Dev ECS
         run: |
-          IMAGE="ghcr.io/larchanka-training/dmc-1-t1-notebook-ui:sha-${{ github.sha }}"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE="ghcr.io/larchanka-training/dmc-1-t1-notebook-ui:sha-${SHORT_SHA}"
           TASK_DEF=$(aws ecs describe-task-definition \
             --task-definition dmc-1-t1-notebook-dev-ui \
             --query taskDefinition)
@@ -171,7 +172,8 @@ jobs:
       - name: Deploy UI to Prod ECS
         run: |
           TAG="${{ github.event.inputs.image_tag }}"
-          IMAGE="ghcr.io/larchanka-training/dmc-1-t1-notebook-ui:${TAG:-sha-${{ github.sha }}}"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE="ghcr.io/larchanka-training/dmc-1-t1-notebook-ui:${TAG:-sha-${SHORT_SHA}}"
           TASK_DEF=$(aws ecs describe-task-definition \
             --task-definition dmc-1-t1-notebook-prod-ui \
             --query taskDefinition)
