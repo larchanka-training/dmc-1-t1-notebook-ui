@@ -16,6 +16,7 @@ export type WebLLMStatus = "preparing" | "ready" | "error";
 
 interface WebLLMContextValue {
   status: WebLLMStatus;
+  error: string | null;
   generate: (prompt: string) => Promise<string>;
 }
 
@@ -33,6 +34,7 @@ interface WebLLMProviderProps {
 
 export function WebLLMProvider({ children }: WebLLMProviderProps) {
   const [status, setStatus] = useState<WebLLMStatus>("preparing");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const engineRef = useRef<MLCEngine | null>(null);
   const loadErrorRef = useRef<unknown>(null);
   const initStartedRef = useRef(false);
@@ -61,6 +63,7 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
       .catch((err: unknown) => {
         console.error("[WebLLM] Engine failed to load:", err);
         loadErrorRef.current = err;
+        setErrorMessage(err instanceof Error ? err.message : String(err));
         setStatus("error");
         readyResolveRef.current();
       });
@@ -79,7 +82,7 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
   }, []);
 
   return (
-    <WebLLMContext.Provider value={{ status, generate }}>
+    <WebLLMContext.Provider value={{ status, error: errorMessage, generate }}>
       {children}
     </WebLLMContext.Provider>
   );
