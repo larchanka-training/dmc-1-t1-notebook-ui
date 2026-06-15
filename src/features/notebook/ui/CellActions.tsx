@@ -25,9 +25,11 @@ export function CellActions({ cell, index, total, collapsed, onToggleCollapse }:
 
   const handlePromptAI = async () => {
     if (cell.type !== "markdown" || cell.source.trim() === "" || isGenerating) return;
+    console.log("[PromptAI] starting generation for cell:", cell.id, "source:", cell.source);
     setIsGenerating(true);
     try {
       const result = await generate(cell.source);
+      console.log("[PromptAI] generation complete, result length:", result.length);
       const nextCell = state.notebook.cells[index + 1];
       if (nextCell?.type === "raw") {
         dispatch(notebookActions.updateSource(nextCell.id, result));
@@ -38,7 +40,10 @@ export function CellActions({ cell, index, total, collapsed, onToggleCollapse }:
           dispatch(notebookActions.updateSource(addAction.newCell.id, result));
         }
       }
+    } catch (err) {
+      console.error("[PromptAI] generation failed:", err);
     } finally {
+      console.log("[PromptAI] finally — clearing isGenerating");
       setIsGenerating(false);
     }
   };
