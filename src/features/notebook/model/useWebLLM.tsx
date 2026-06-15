@@ -74,12 +74,16 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
     const engine = engineRef.current;
     if (!engine) throw loadErrorRef.current ?? new Error("WebLLM engine not available");
 
-    const reply = await engine.chat.completions.create({
+    const chunks = await engine.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      stream: false,
+      stream: true,
     });
 
-    return reply.choices[0]?.message.content ?? "";
+    let result = "";
+    for await (const chunk of chunks) {
+      result += chunk.choices[0]?.delta?.content ?? "";
+    }
+    return result;
   }, []);
 
   return (
