@@ -1,62 +1,22 @@
 import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useExecutor } from "../model/useNotebookExecutor";
-import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
 import { BrowserLLMStatus } from "./BrowserLLMStatus";
 import { Button } from "../../../shared/ui/Button";
 
-type SaveState = "idle" | "saving" | "saved" | "error";
-
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
   const { runAll, interruptWorker, isRunning } = useExecutor();
-  const [saveState, setSaveState] = useState<SaveState>("idle");
   const [pendingDeleteCellId, setPendingDeleteCellId] = useState<string | null>(null);
 
   const { selectedCellId } = state.ui;
   const cells = state.notebook.cells;
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
 
-  const handleSave = async () => {
-    setSaveState("saving");
-    try {
-      await notebookService.saveNotebook(state.notebook);
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 2000);
-    } catch {
-      setSaveState("error");
-      setTimeout(() => setSaveState("idle"), 3000);
-    }
-  };
-
-  const saveLabel =
-    saveState === "saving" ? (
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
-        Saving…
-      </span>
-    ) : saveState === "saved" ? (
-      "✓ Saved"
-    ) : saveState === "error" ? (
-      "Save failed"
-    ) : (
-      "Save"
-    );
-
   return (
     <div className="flex justify-between w-full">
       <div className="flex items-center gap-1">
-        <Button
-          onClick={() => void handleSave()}
-          disabled={saveState === "saving"}
-          className={saveState === "saved" ? "text-green-700" : saveState === "error" ? "text-red-600" : ""}
-        >
-          {saveLabel}
-        </Button>
-
-        <span className="mx-1 h-4 w-px bg-stone-200" />
-
         <Button
           onClick={() =>
             dispatch(notebookActions.addCell("code", selectedCellId ?? undefined))
