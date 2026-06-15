@@ -76,6 +76,7 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
 
     const reply = await engine.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
+      stream: false,
     });
 
     return reply.choices[0]?.message.content ?? "";
