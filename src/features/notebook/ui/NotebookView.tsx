@@ -5,6 +5,7 @@ import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useAutoSave } from "../model/useAutoSave";
 import { NotebookCell } from "./NotebookCell";
 import { ExecutorProvider } from "../model/useNotebookExecutor";
+import { WebLLMProvider } from "../model/useWebLLM";
 
 interface NotebookViewProps {
   notebookStatus: NotebookRequestStatus;
@@ -33,6 +34,7 @@ export function NotebookView({
   const isNotebookLoading = notebookStatus === "loading" || notebookStatus === "idle";
 
   return (
+    <WebLLMProvider>
     <ExecutorProvider>
     <main className="flex flex-1 h-screen flex-col px-6 py-4 text-stone-800 overflow-hidden">
       <section className="mb-4">
@@ -80,5 +82,6 @@ export function NotebookView({
       </section>
     </main>
     </ExecutorProvider>
+    </WebLLMProvider>
   );
 }

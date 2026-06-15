@@ -3,6 +3,7 @@ import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useExecutor } from "../model/useNotebookExecutor";
 import { notebookService } from "../api/notebookService";
 import { KernelStatus } from "./KernelStatus";
+import { BrowserLLMStatus } from "./BrowserLLMStatus";
 import { Button } from "../../../shared/ui/Button";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -120,7 +121,11 @@ export function NotebookToolbar() {
         </select>
       </div>
 
-      <KernelStatus />
+      <div className="flex items-center gap-2">
+        <KernelStatus />
+        <span className="h-4 w-px bg-stone-200" />
+        <BrowserLLMStatus />
+      </div>
 
       {pendingDeleteCellId !== null && (
         <div

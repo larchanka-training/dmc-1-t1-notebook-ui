@@ -3,6 +3,7 @@ import type { Cell, CodeCell } from "../model/types";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useRunCell } from "../model/useRunCell";
 import { useExecutor } from "../model/useNotebookExecutor";
+import { useWebLLM } from "../model/useWebLLM";
 import { AiPromptModal } from "./AiPromptModal";
 import { Button } from "../../../shared/ui/Button";
 
@@ -15,10 +16,32 @@ interface CellActionsProps {
 }
 
 export function CellActions({ cell, index, total, collapsed, onToggleCollapse }: CellActionsProps) {
-  const { dispatch } = useNotebook();
+  const { state, dispatch } = useNotebook();
   const runCell = useRunCell();
   const { interruptWorker } = useExecutor();
+  const { generate } = useWebLLM();
   const [aiOpen, setAiOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handlePromptAI = async () => {
+    if (cell.type !== "markdown" || cell.source.trim() === "" || isGenerating) return;
+    setIsGenerating(true);
+    try {
+      const result = await generate(cell.source);
+      const nextCell = state.notebook.cells[index + 1];
+      if (nextCell?.type === "raw") {
+        dispatch(notebookActions.updateSource(nextCell.id, result));
+      } else {
+        const addAction = notebookActions.addCell("raw", cell.id);
+        dispatch(addAction);
+        if (addAction.type === "ADD_CELL") {
+          dispatch(notebookActions.updateSource(addAction.newCell.id, result));
+        }
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const isExecuting =
     cell.type === "code" &&
@@ -71,6 +94,20 @@ export function CellActions({ cell, index, total, collapsed, onToggleCollapse }:
             title="Generate with AI"
           >
             ✦
+          </Button>
+        )}
+        {cell.type === "markdown" && (
+          <Button
+            size="sm"
+            onClick={() => void handlePromptAI()}
+            disabled={isGenerating || cell.source.trim() === ""}
+            title="Prompt AI"
+          >
+            {isGenerating ? (
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+            ) : (
+              "✦"
+            )}
           </Button>
         )}
         <Button
