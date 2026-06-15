@@ -70,19 +70,42 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
   }, []);
 
   const generate = useCallback(async (prompt: string): Promise<string> => {
+    console.log("[WebLLM] generate() called, awaiting ready...");
     await readyPromiseRef.current;
+    console.log("[WebLLM] ready resolved, engineRef:", engineRef.current);
     const engine = engineRef.current;
-    if (!engine) throw loadErrorRef.current ?? new Error("WebLLM engine not available");
+    if (!engine) {
+      console.error("[WebLLM] engine is null, throwing load error:", loadErrorRef.current);
+      throw loadErrorRef.current ?? new Error("WebLLM engine not available");
+    }
 
-    const chunks = await engine.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      stream: true,
-    });
+    console.log("[WebLLM] calling engine.chat.completions.create...");
+    let chunks: AsyncIterable<unknown>;
+    try {
+      chunks = await engine.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        stream: true,
+      });
+      console.log("[WebLLM] got stream object:", chunks);
+    } catch (err) {
+      console.error("[WebLLM] create() threw:", err);
+      throw err;
+    }
 
     let result = "";
-    for await (const chunk of chunks) {
-      result += chunk.choices[0]?.delta?.content ?? "";
+    let chunkCount = 0;
+    try {
+      for await (const chunk of chunks as AsyncIterable<{ choices: { delta: { content?: string | null } }[] }>) {
+        chunkCount++;
+        const piece = chunk.choices[0]?.delta?.content ?? "";
+        console.log(`[WebLLM] chunk #${chunkCount}:`, JSON.stringify(piece));
+        result += piece;
+      }
+    } catch (err) {
+      console.error("[WebLLM] error during stream iteration:", err);
+      throw err;
     }
+    console.log(`[WebLLM] done. ${chunkCount} chunks, result length: ${result.length}`);
     return result;
   }, []);
 
