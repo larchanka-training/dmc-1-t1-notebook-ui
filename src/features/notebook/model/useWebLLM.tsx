@@ -32,6 +32,11 @@ interface WebLLMProviderProps {
   children: ReactNode;
 }
 
+interface ReadyState {
+  promise: Promise<void>;
+  resolve: () => void;
+}
+
 export function WebLLMProvider({ children }: WebLLMProviderProps) {
   const [status, setStatus] = useState<WebLLMStatus>("preparing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -39,15 +44,16 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
   const loadErrorRef = useRef<unknown>(null);
   const initStartedRef = useRef(false);
 
-  // readyPromise always resolves (never rejects) once initialization is settled.
-  // generate() awaits it and then checks engineRef — if the engine failed to
-  // load, engineRef is null and generate() re-throws the original load error.
-  const readyResolveRef = useRef<() => void>(() => {});
-  const readyPromiseRef = useRef<Promise<void>>(
-    new Promise<void>((resolve) => {
-      readyResolveRef.current = resolve;
-    })
-  );
+  // Lazy-init: create the promise+resolver exactly once regardless of re-renders.
+  // useRef(initialValue) evaluates its argument on every render even though only
+  // the first value is kept — so we guard with a null check instead of relying
+  // on the initializer to run once.
+  const readyRef = useRef<ReadyState | null>(null);
+  if (readyRef.current === null) {
+    let resolve!: () => void;
+    const promise = new Promise<void>((r) => { resolve = r; });
+    readyRef.current = { promise, resolve };
+  }
 
   useEffect(() => {
     // Guard against React StrictMode double-invocation
@@ -58,20 +64,20 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
       .then((engine) => {
         engineRef.current = engine;
         setStatus("ready");
-        readyResolveRef.current();
+        readyRef.current!.resolve();
       })
       .catch((err: unknown) => {
         console.error("[WebLLM] Engine failed to load:", err);
         loadErrorRef.current = err;
         setErrorMessage(err instanceof Error ? err.message : String(err));
         setStatus("error");
-        readyResolveRef.current();
+        readyRef.current!.resolve();
       });
   }, []);
 
   const generate = useCallback(async (prompt: string): Promise<string> => {
     console.log("[WebLLM] generate() called, awaiting ready...");
-    await readyPromiseRef.current;
+    await readyRef.current!.promise;
     console.log("[WebLLM] ready resolved, engineRef:", engineRef.current);
     const engine = engineRef.current;
     if (!engine) {
