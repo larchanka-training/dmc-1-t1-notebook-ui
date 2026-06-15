@@ -187,6 +187,138 @@ undefinedFunction();  // ...but this throws, so count stays 0`}
             </div>
           </Section>
 
+          {/* Section 6 */}
+          <Section
+            number="6"
+            title="Cell Types"
+          >
+            <p className="text-stone-600 leading-relaxed">
+              Notebooks support three distinct cell types, each serving a different purpose.
+              You can add, reorder, and delete cells of any type from the cell action bar.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3">
+              <FeatureRow
+                badge="Code"
+                badgeColor="blue"
+                label="Executable JavaScript"
+                description="Write and run JavaScript directly in the browser. Outputs — including
+                  console logs, return values, and errors — appear below the cell. Code cells
+                  support the full var / let / const scoping rules described in Section 1."
+              />
+              <FeatureRow
+                badge="Markdown"
+                badgeColor="purple"
+                label="Rich text with live preview"
+                description="Write documentation, headings, lists, and inline code using Markdown
+                  syntax. The cell renders a live preview on the right side as you type,
+                  supporting GitHub-Flavored Markdown (GFM) including tables and task lists."
+              />
+              <FeatureRow
+                badge="Raw"
+                badgeColor="amber"
+                label="Plain text — no execution or rendering"
+                description="A plain text cell with no special treatment. Raw cells are the output
+                  target for Browser LLM generation (see Section 8): when you prompt the AI from
+                  a Markdown cell, its response is written into the next Raw cell (or a new one
+                  is created automatically)."
+              />
+            </div>
+          </Section>
+
+          {/* Section 7 */}
+          <Section
+            number="7"
+            title="AI Code Generation"
+            subtitle="Server-side — available on Code cells"
+          >
+            <p className="text-stone-600 leading-relaxed">
+              Click the <strong>✦</strong> button on any <strong>Code</strong> cell to open the
+              AI generation modal. Describe what you want to build in plain English and the
+              assistant will write the JavaScript code and insert it directly into the cell.
+            </p>
+            <p className="mt-3 text-stone-600 leading-relaxed">
+              The model is context-aware: before generating, the system automatically collects
+              the source and outputs of the other cells in your notebook and sends them as
+              context, so the generated code can reference variables and data already in scope.
+            </p>
+
+            <CodeBlock
+              caption="Example — describe your intent, get runnable code"
+              code={`// Open the ✦ modal on a Code cell and type:
+// "fetch the top 5 posts from the JSONPlaceholder API and log their titles"
+
+// Generated result placed into the cell:
+var response = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
+var posts = await response.json();
+posts.forEach(p => console.log(p.title));`}
+            />
+
+            <WarningBox>
+              AI generation replaces the entire source of the target cell. If the cell already
+              has code you want to keep, copy it first or use Undo (<code>Ctrl+Z</code> /{" "}
+              <code>⌘Z</code>) after generation.
+            </WarningBox>
+          </Section>
+
+          {/* Section 8 */}
+          <Section
+            number="8"
+            title="Browser LLM Generation"
+            subtitle="Client-side — available on Markdown cells"
+          >
+            <p className="text-stone-600 leading-relaxed">
+              The notebook loads a small language model (<strong>Llama 3.2 1B</strong>) directly
+              inside your browser using WebLLM. No data leaves your machine — inference runs
+              entirely on your device's GPU or CPU.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3">
+              <FeatureRow
+                badge="preparing"
+                badgeColor="amber"
+                label="Model is loading"
+                description="On first load the model weights are downloaded and cached by the
+                  browser. This can take a moment. The spinning indicator in the toolbar shows
+                  the current status."
+              />
+              <FeatureRow
+                badge="ready"
+                badgeColor="green"
+                label="Model is ready"
+                description="A green dot in the toolbar confirms the model is loaded and ready.
+                  Click ✦ on any Markdown cell to use it."
+              />
+              <FeatureRow
+                badge="error"
+                badgeColor="red"
+                label="Load failed"
+                description="A red dot indicates the model failed to initialise (hover the status
+                  for the error message). This can happen if WebGPU is unsupported or if the
+                  download was interrupted. Refreshing the page will retry."
+              />
+            </div>
+
+            <p className="mt-5 text-stone-600 leading-relaxed">
+              To use it: write your prompt in a <strong>Markdown</strong> cell, then click the{" "}
+              <strong>✦</strong> button. The model treats the cell's text as input and writes its
+              response into the next <strong>Raw</strong> cell. If no Raw cell follows, one is
+              created automatically.
+            </p>
+
+            <CodeBlock
+              caption="Example — Markdown cell as prompt, Raw cell receives output"
+              code={`// MARKDOWN CELL (your prompt)
+Explain the difference between var, let, and const in JavaScript.
+
+// → Click ✦ on the Markdown cell
+// → Output is written into the Raw cell below:
+
+// RAW CELL (LLM response)
+var is function-scoped and hoisted to the top of its containing function...`}
+            />
+          </Section>
+
         </div>
       </div>
     </div>
@@ -222,13 +354,14 @@ function Section({
   );
 }
 
-type BadgeColor = "blue" | "purple" | "green" | "red";
+type BadgeColor = "blue" | "purple" | "green" | "red" | "amber";
 
 const badgeClasses: Record<BadgeColor, string> = {
   blue: "bg-blue-50 text-blue-700 border-blue-200",
   purple: "bg-purple-50 text-purple-700 border-purple-200",
   green: "bg-green-50 text-green-700 border-green-200",
   red: "bg-red-50 text-red-700 border-red-200",
+  amber: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
 function FeatureRow({
