@@ -130,9 +130,8 @@ describe("WebLLMProvider / useWebLLM", () => {
       expect(screen.getByTestId("status").textContent).toBe("error")
     );
 
-    // readyPromise resolves (not rejects) on error; generate() then checks
-    // for a null engine and throws its own descriptive error
-    await expect(getCtx().generate("hello")).rejects.toThrow("WebLLM engine not available");
+    // generate() re-throws the original load error stored in loadErrorRef
+    await expect(getCtx().generate("hello")).rejects.toThrow("WebGPU not supported");
   });
 
   it("generate() returns empty string when engine returns null content", async () => {
