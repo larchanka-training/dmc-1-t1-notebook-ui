@@ -16,6 +16,7 @@ export type WebLLMStatus = "preparing" | "ready" | "error";
 
 interface WebLLMContextValue {
   status: WebLLMStatus;
+  error: string | null;
   generate: (prompt: string) => Promise<string>;
 }
 
@@ -33,13 +34,14 @@ interface WebLLMProviderProps {
 
 export function WebLLMProvider({ children }: WebLLMProviderProps) {
   const [status, setStatus] = useState<WebLLMStatus>("preparing");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const engineRef = useRef<MLCEngine | null>(null);
+  const loadErrorRef = useRef<unknown>(null);
   const initStartedRef = useRef(false);
 
   // readyPromise always resolves (never rejects) once initialization is settled.
   // generate() awaits it and then checks engineRef — if the engine failed to
-  // load, engineRef is null and generate() throws a clear error. This avoids
-  // unhandled promise rejections when no generate() call is in flight.
+  // load, engineRef is null and generate() re-throws the original load error.
   const readyResolveRef = useRef<() => void>(() => {});
   const readyPromiseRef = useRef<Promise<void>>(
     new Promise<void>((resolve) => {
@@ -58,7 +60,10 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
         setStatus("ready");
         readyResolveRef.current();
       })
-      .catch(() => {
+      .catch((err: unknown) => {
+        console.error("[WebLLM] Engine failed to load:", err);
+        loadErrorRef.current = err;
+        setErrorMessage(err instanceof Error ? err.message : String(err));
         setStatus("error");
         readyResolveRef.current();
       });
@@ -67,7 +72,7 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
   const generate = useCallback(async (prompt: string): Promise<string> => {
     await readyPromiseRef.current;
     const engine = engineRef.current;
-    if (!engine) throw new Error("WebLLM engine not available");
+    if (!engine) throw loadErrorRef.current ?? new Error("WebLLM engine not available");
 
     const reply = await engine.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
@@ -77,7 +82,7 @@ export function WebLLMProvider({ children }: WebLLMProviderProps) {
   }, []);
 
   return (
-    <WebLLMContext.Provider value={{ status, generate }}>
+    <WebLLMContext.Provider value={{ status, error: errorMessage, generate }}>
       {children}
     </WebLLMContext.Provider>
   );

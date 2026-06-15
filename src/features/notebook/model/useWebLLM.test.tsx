@@ -39,10 +39,11 @@ beforeEach(() => {
 // ---------- Tests ----------
 
 describe("WebLLMProvider / useWebLLM", () => {
-  it("starts with status 'preparing'", () => {
+  it("starts with status 'preparing' and null error", () => {
     mockCreateMLCEngine.mockReturnValue(new Promise(() => {})); // never resolves
-    renderProvider();
+    const { getCtx } = renderProvider();
     expect(screen.getByTestId("status").textContent).toBe("preparing");
+    expect(getCtx().error).toBeNull();
   });
 
   it("transitions to 'ready' when the engine loads", async () => {
@@ -55,10 +56,16 @@ describe("WebLLMProvider / useWebLLM", () => {
 
   it("transitions to 'error' when the engine fails to load", async () => {
     mockCreateMLCEngine.mockRejectedValue(new Error("WebGPU not supported"));
-    renderProvider();
+    let captured: ReturnType<typeof useWebLLM> | null = null;
+    render(
+      <WebLLMProvider>
+        <Probe onCapture={(ctx) => { captured = ctx; }} />
+      </WebLLMProvider>
+    );
     await waitFor(() =>
       expect(screen.getByTestId("status").textContent).toBe("error")
     );
+    expect(captured!.error).toBe("WebGPU not supported");
   });
 
   it("throws inside WebLLMProvider when useWebLLM is used outside provider", () => {
@@ -130,9 +137,8 @@ describe("WebLLMProvider / useWebLLM", () => {
       expect(screen.getByTestId("status").textContent).toBe("error")
     );
 
-    // readyPromise resolves (not rejects) on error; generate() then checks
-    // for a null engine and throws its own descriptive error
-    await expect(getCtx().generate("hello")).rejects.toThrow("WebLLM engine not available");
+    // generate() re-throws the original load error stored in loadErrorRef
+    await expect(getCtx().generate("hello")).rejects.toThrow("WebGPU not supported");
   });
 
   it("generate() returns empty string when engine returns null content", async () => {

@@ -7,7 +7,7 @@ const dotClass: Record<WebLLMStatus, string> = {
 };
 
 export function BrowserLLMStatus() {
-  const { status } = useWebLLM();
+  const { status, error } = useWebLLM();
 
   return (
     <div className="flex items-center gap-1.5">
@@ -17,7 +17,17 @@ export function BrowserLLMStatus() {
         <span className={`h-2 w-2 rounded-full ${dotClass[status]}`} />
       )}
       <span className="text-xs text-stone-500">
-        Browser LLM · {status}
+        Browser LLM ·{" "}
+        {status === "error" && error ? (
+          <span
+            className="underline decoration-dotted cursor-help"
+            title={error}
+          >
+            error
+          </span>
+        ) : (
+          status
+        )}
       </span>
     </div>
   );
