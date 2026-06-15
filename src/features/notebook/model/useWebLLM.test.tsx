@@ -16,6 +16,14 @@ vi.mock("@mlc-ai/web-llm", () => ({
 
 // ---------- Test helpers ----------
 
+function makeStream(parts: Array<string | null>) {
+  return (async function* () {
+    for (const content of parts) {
+      yield { choices: [{ delta: { content } }] };
+    }
+  })();
+}
+
 function Probe({ onCapture }: { onCapture: (ctx: ReturnType<typeof useWebLLM>) => void }) {
   const ctx = useWebLLM();
   onCapture(ctx);
@@ -79,9 +87,7 @@ describe("WebLLMProvider / useWebLLM", () => {
 
   it("generate() calls the engine with the given prompt", async () => {
     mockCreateMLCEngine.mockResolvedValue(mockEngine);
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: "the answer" } }],
-    });
+    mockCreate.mockResolvedValue(makeStream(["the answer"]));
 
     const { getCtx } = renderProvider();
     await waitFor(() =>
@@ -97,6 +103,7 @@ describe("WebLLMProvider / useWebLLM", () => {
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         messages: [{ role: "user", content: "my question" }],
+        stream: true,
       })
     );
   });
@@ -106,9 +113,7 @@ describe("WebLLMProvider / useWebLLM", () => {
     mockCreateMLCEngine.mockReturnValue(
       new Promise<typeof mockEngine>((resolve) => { resolveEngine = resolve; })
     );
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: "deferred answer" } }],
-    });
+    mockCreate.mockResolvedValue(makeStream(["deferred answer"]));
 
     const { getCtx } = renderProvider();
     expect(screen.getByTestId("status").textContent).toBe("preparing");
@@ -143,9 +148,7 @@ describe("WebLLMProvider / useWebLLM", () => {
 
   it("generate() returns empty string when engine returns null content", async () => {
     mockCreateMLCEngine.mockResolvedValue(mockEngine);
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: null } }],
-    });
+    mockCreate.mockResolvedValue(makeStream([null]));
 
     const { getCtx } = renderProvider();
     await waitFor(() =>
