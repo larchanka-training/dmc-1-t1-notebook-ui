@@ -177,7 +177,7 @@ export function ExecutorProvider({ children }: ExecutorProviderProps) {
 
     workerRef.current = worker;
     return worker;
-  }, [dispatch, updateRunning]);
+  }, [dispatch, track, updateRunning]);
 
   // Boot worker on mount, tear down on unmount
   useEffect(() => {
