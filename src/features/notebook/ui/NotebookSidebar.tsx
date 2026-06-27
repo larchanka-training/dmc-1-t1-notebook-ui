@@ -245,6 +245,12 @@ export function NotebookSidebar({
             </button>
           )}
           <Link
+            to="/analytics"
+            className="block px-2 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            Analytics
+          </Link>
+          <Link
             to="/help"
             className="block px-2 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
           >

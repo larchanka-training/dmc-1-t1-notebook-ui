@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { createElement } from "react";
+import { useAnalytics } from "../../analytics/model/useAnalytics";
 import { useNotebook, notebookActions } from "./notebookContext";
 import type { ErrorOutput, StreamOutput } from "./types";
 
@@ -69,6 +70,7 @@ interface ExecutorProviderProps {
 
 export function ExecutorProvider({ children }: ExecutorProviderProps) {
   const { state, dispatch } = useNotebook();
+  const { track } = useAnalytics();
   // Keep a stable ref to state.notebook.cells so callbacks don't capture stale closures
   const cellsRef = useRef(state.notebook.cells);
   cellsRef.current = state.notebook.cells;
@@ -115,6 +117,11 @@ export function ExecutorProvider({ children }: ExecutorProviderProps) {
         dispatch(
           notebookActions.finishExecution(msg.cellId, errorOutput, 0, "error")
         );
+        track("execution_error", {
+          cell_id: msg.cellId,
+          error_name: msg.ename,
+          error_value: msg.evalue,
+        });
         pending?.resolve();
         updateRunning();
         return;
@@ -146,6 +153,11 @@ export function ExecutorProvider({ children }: ExecutorProviderProps) {
             "ok"
           )
         );
+
+        track("cell_executed", {
+          cell_id: msg.cellId,
+          execution_count: msg.executionCount,
+        });
 
         // Advance selection to next cell on single-cell run
         const cells = cellsRef.current;
