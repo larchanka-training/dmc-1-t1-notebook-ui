@@ -32,7 +32,7 @@ export function AiPromptModal({ cellId, open, onClose }: AiPromptModalProps) {
     }
   };
 
-  const handleBackdropClick = (e: MouseEvent) => {
+  const handleBackdropMouseDown = (e: MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
 
@@ -43,7 +43,7 @@ export function AiPromptModal({ cellId, open, onClose }: AiPromptModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
-      onClick={handleBackdropClick}
+      onMouseDown={handleBackdropMouseDown}
       onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"
