@@ -13,7 +13,7 @@ export function KernelStatus() {
       <span
         className={`h-2 w-2 rounded-full ${busy ? "bg-amber-400" : "bg-green-400"}`}
       />
-      <span className="text-xs text-stone-500">
+      <span className="text-xs text-stone-500 dark:text-stone-400">
         JavaScript · {busy ? "busy" : "idle"}
       </span>
     </div>

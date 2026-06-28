@@ -36,14 +36,14 @@ export function NotebookView({
   return (
     <WebLLMProvider>
     <ExecutorProvider>
-    <main className="flex flex-1 h-screen flex-col px-6 py-4 text-stone-800 overflow-hidden">
+    <main className="flex flex-1 h-screen flex-col px-6 py-4 text-stone-800 dark:text-stone-100 overflow-hidden">
       <section className="mb-4">
         {isNotebookLoading ? (
           <h1 className="text-2xl font-semibold tracking-tight">
             <span className="animate-pulse text-stone-400">Loading…</span>
           </h1>
         ) : (
-          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-900 dark:text-stone-100">
             {state.notebook.metadata.title}
           </h1>
         )}
@@ -55,14 +55,14 @@ export function NotebookView({
         </p>
       ) : null}
 
-      <section className="flex flex-col flex-1 min-h-0 rounded-lg border border-stone-200 bg-white shadow-sm">
-        <div className="flex flex-wrap gap-3 border-b border-stone-200 px-4 py-2">
+      <section className="flex flex-col flex-1 min-h-0 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-sm">
+        <div className="flex flex-wrap gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-2">
           <NotebookToolbar />
         </div>
 
         {isNotebookLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="flex flex-col items-center gap-2 text-stone-400">
+            <div className="flex flex-col items-center gap-2 text-stone-400 dark:text-stone-500">
               <svg className="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />

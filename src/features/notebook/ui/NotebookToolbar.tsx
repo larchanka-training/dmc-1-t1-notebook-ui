@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
 import { useExecutor } from "../model/useNotebookExecutor";
 import { KernelStatus } from "./KernelStatus";
+import { ThemeToggle } from "./ThemeToggle";
 import { BrowserLLMStatus } from "./BrowserLLMStatus";
 import { Button } from "../../../shared/ui/Button";
 
@@ -34,7 +35,7 @@ export function NotebookToolbar() {
           Delete cell
         </Button>
 
-        <span className="mx-1 h-4 w-px bg-stone-200" />
+        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <Button
           disabled={isRunning}
@@ -58,7 +59,7 @@ export function NotebookToolbar() {
           ↺ Restart
         </Button>
 
-        <span className="mx-1 h-4 w-px bg-stone-200" />
+        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <select
           value={activeCell?.type ?? "code"}
@@ -73,7 +74,7 @@ export function NotebookToolbar() {
               );
             }
           }}
-          className="rounded border border-stone-200 px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40"
+          className="rounded border border-stone-200 px-2 py-1.5 text-sm text-stone-600 hover:border-stone-300 disabled:opacity-40 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-stone-500"
         >
           <option value="code">Code</option>
           <option value="markdown">Markdown</option>
@@ -83,8 +84,10 @@ export function NotebookToolbar() {
 
       <div className="flex items-center gap-2">
         <KernelStatus />
-        <span className="h-4 w-px bg-stone-200" />
+        <span className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
         <BrowserLLMStatus />
+        <span className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
+        <ThemeToggle />
       </div>
 
       {pendingDeleteCellId !== null && (
@@ -93,11 +96,11 @@ export function NotebookToolbar() {
           onClick={() => setPendingDeleteCellId(null)}
         >
           <div
-            className="w-80 rounded-xl bg-white p-6 shadow-xl"
+            className="w-80 rounded-xl bg-white dark:bg-stone-800 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-semibold text-stone-900">Delete cell?</h2>
-            <p className="mt-1 text-sm text-stone-500">This cannot be undone.</p>
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">Delete cell?</h2>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">This cannot be undone.</p>
             <div className="mt-5 flex justify-end gap-2">
               <Button onClick={() => setPendingDeleteCellId(null)}>Cancel</Button>
               <Button
