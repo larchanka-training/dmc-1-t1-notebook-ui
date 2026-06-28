@@ -44,6 +44,7 @@ function buildCell(cellType: "code" | "markdown" | "raw", id: string): Cell {
         executionCount: null,
         executionState: "idle",
         output: emptyOutput(),
+        metadata: { collapsed: true },
       };
     case "markdown":
       return { id, source: "", type: "markdown" };
@@ -98,6 +99,7 @@ type Action =
   | { type: "START_EXECUTION"; cellId: string; now: string }
   | { type: "FINISH_EXECUTION"; cellId: string; output: CellOutput; executionCount: number; status: "ok" | "error"; now: string }
   | { type: "RESTART_KERNEL"; now: string }
+  | { type: "QUEUE_CELL"; cellId: string; now: string }
   | { type: "TOGGLE_OUTPUT_COLLAPSED"; cellId: string; now: string }
   | { type: "UPDATE_TITLE"; title: string; now: string };
 
@@ -159,6 +161,11 @@ export const notebookActions = {
     type: "RESTART_KERNEL",
     now: new Date().toISOString(),
   }),
+  queueCell: (cellId: string): Action => ({
+    type: "QUEUE_CELL",
+    cellId,
+    now: new Date().toISOString(),
+  }),
   toggleOutputCollapsed: (cellId: string): Action => ({
     type: "TOGGLE_OUTPUT_COLLAPSED",
     cellId,
@@ -173,7 +180,7 @@ export const notebookActions = {
 
 // ---- Reducer (pure) ----
 
-function reducer(state: State, action: Action): State {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "ADD_CELL": {
       const cells = [...state.notebook.cells];
@@ -292,6 +299,17 @@ function reducer(state: State, action: Action): State {
           executionCount: action.executionCount,
           metadata: { ...cell.metadata, collapsed: false },
         };
+      });
+      return {
+        ...state,
+        notebook: { ...state.notebook, cells: newCells, updatedAt: action.now },
+      };
+    }
+
+    case "QUEUE_CELL": {
+      const newCells = state.notebook.cells.map((cell): Cell => {
+        if (cell.id !== action.cellId || cell.type !== "code") return cell;
+        return { ...cell, executionState: "queued", output: emptyOutput() };
       });
       return {
         ...state,

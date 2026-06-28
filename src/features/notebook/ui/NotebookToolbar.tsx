@@ -1,65 +1,23 @@
 import { useState } from "react";
 import { useNotebook, notebookActions } from "../model/notebookContext";
-import { useRunCell } from "../model/useRunCell";
-import { notebookService } from "../api/notebookService";
+import { useExecutor } from "../model/useNotebookExecutor";
 import { KernelStatus } from "./KernelStatus";
 import { ThemeToggle } from "./ThemeToggle";
+import { BrowserLLMStatus } from "./BrowserLLMStatus";
 import { Button } from "../../../shared/ui/Button";
-
-type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function NotebookToolbar() {
   const { state, dispatch } = useNotebook();
-  const runCell = useRunCell();
-  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const { runAll, interruptWorker, isRunning } = useExecutor();
+  const [pendingDeleteCellId, setPendingDeleteCellId] = useState<string | null>(null);
 
   const { selectedCellId } = state.ui;
   const cells = state.notebook.cells;
   const activeCell = cells.find((c) => c.id === selectedCellId) ?? null;
-  const isCodeCell = activeCell?.type === "code";
-  const isRunning =
-    activeCell?.type === "code" &&
-    (activeCell.executionState === "running" || activeCell.executionState === "queued");
-
-  const handleSave = async () => {
-    setSaveState("saving");
-    try {
-      await notebookService.saveNotebook(state.notebook);
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 2000);
-    } catch {
-      setSaveState("error");
-      setTimeout(() => setSaveState("idle"), 3000);
-    }
-  };
-
-  const saveLabel =
-    saveState === "saving" ? (
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
-        Saving…
-      </span>
-    ) : saveState === "saved" ? (
-      "✓ Saved"
-    ) : saveState === "error" ? (
-      "Save failed"
-    ) : (
-      "Save"
-    );
 
   return (
     <div className="flex justify-between w-full">
       <div className="flex items-center gap-1">
-        <Button
-          onClick={() => void handleSave()}
-          disabled={saveState === "saving"}
-          className={saveState === "saved" ? "text-green-700" : saveState === "error" ? "text-red-600" : ""}
-        >
-          {saveLabel}
-        </Button>
-
-        <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
-
         <Button
           onClick={() =>
             dispatch(notebookActions.addCell("code", selectedCellId ?? undefined))
@@ -71,8 +29,7 @@ export function NotebookToolbar() {
         <Button
           disabled={selectedCellId === null}
           onClick={() => {
-            if (selectedCellId !== null)
-              dispatch(notebookActions.deleteCell(selectedCellId));
+            if (selectedCellId !== null) setPendingDeleteCellId(selectedCellId);
           }}
         >
           Delete cell
@@ -81,22 +38,24 @@ export function NotebookToolbar() {
         <span className="mx-1 h-4 w-px bg-stone-200 dark:bg-stone-700" />
 
         <Button
-          disabled={!isCodeCell || isRunning}
-          onClick={() => {
-            if (selectedCellId !== null) void runCell(selectedCellId);
-          }}
+          disabled={isRunning}
+          onClick={() => void runAll()}
         >
-          {isRunning ? (
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
-              Running
-            </span>
-          ) : (
-            "▶ Run"
-          )}
+          ▶▶ Run All
         </Button>
 
-        <Button onClick={() => dispatch(notebookActions.restartKernel())}>
+        <Button
+          disabled={!isRunning}
+          className={isRunning ? "text-red-600 hover:text-red-700" : ""}
+          onClick={() => interruptWorker()}
+        >
+          ■ Stop
+        </Button>
+
+        <Button
+          disabled={isRunning}
+          onClick={() => dispatch(notebookActions.restartKernel())}
+        >
           ↺ Restart
         </Button>
 
@@ -126,8 +85,37 @@ export function NotebookToolbar() {
       <div className="flex items-center gap-2">
         <KernelStatus />
         <span className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
+        <BrowserLLMStatus />
+        <span className="h-4 w-px bg-stone-200 dark:bg-stone-700" />
         <ThemeToggle />
       </div>
+
+      {pendingDeleteCellId !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+          onClick={() => setPendingDeleteCellId(null)}
+        >
+          <div
+            className="w-80 rounded-xl bg-white dark:bg-stone-800 p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">Delete cell?</h2>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">This cannot be undone.</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button onClick={() => setPendingDeleteCellId(null)}>Cancel</Button>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  dispatch(notebookActions.deleteCell(pendingDeleteCellId));
+                  setPendingDeleteCellId(null);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

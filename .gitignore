@@ -2,3 +2,15 @@ node_modules
 dist
 .DS_Store
 *.tsbuildinfo
+
+# OS / Editor
+.idea/
+.vscode/
+.claude/
+*.iml
+*.swp
+*.swo
+
+# Graphify / Graphweave
+graphify-out/
+.graphweave/
