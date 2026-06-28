@@ -10,3 +10,7 @@ dist
 *.iml
 *.swp
 *.swo
+
+# Graphify / Graphweave
+graphify-out/
+.graphweave/

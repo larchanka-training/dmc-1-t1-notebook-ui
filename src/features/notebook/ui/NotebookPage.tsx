@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { useAnalytics } from "../../analytics/model/useAnalytics";
 import { useAuth } from "../../auth/model/authContext";
 import { AuthModal } from "../../auth/ui/AuthModal";
 import { notebookService } from "../api/notebookService";
@@ -85,10 +86,13 @@ export function NotebookPage() {
 
   const handleSelectNotebook = (id: string) => navigate(`/${id}`);
 
+  const { track } = useAnalytics();
+
   const handleCreateNotebook = async () => {
     setIsCreating(true);
     try {
       const nb = await notebookService.createNotebook();
+      track("notebook_created", { notebook_id: nb.id });
       const list = await notebookService.getAllNotebooks();
       setNotebooks(list);
       navigate(`/${nb.id}`);
