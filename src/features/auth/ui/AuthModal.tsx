@@ -60,11 +60,11 @@ export function AuthModal({ onClose }: AuthModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={onClose}
+      onMouseDown={onClose}
     >
       <div
         className="w-full max-w-sm rounded-xl bg-white shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Tabs */}
         <div className="flex border-b border-stone-200">

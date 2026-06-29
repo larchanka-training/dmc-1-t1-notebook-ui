@@ -26,13 +26,19 @@ async function request<T>(
   signal?: AbortSignal,
   isRetry = false,
 ): Promise<T> {
-  const response = await window.fetch(`${API_BASE_PATH}${path}`, {
-    method,
-    credentials: "include",
-    signal,
-    headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let response: Response;
+  try {
+    response = await window.fetch(`${API_BASE_PATH}${path}`, {
+      method,
+      credentials: "include",
+      signal,
+      headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    window.dispatchEvent(new CustomEvent("api:request-blocked"));
+    throw new Error("Network request blocked. Check your browser extensions (e.g. uBlock Origin).");
+  }
 
   if (response.status === 401 && !isRetry && shouldRetryWithRefresh(path)) {
     try {

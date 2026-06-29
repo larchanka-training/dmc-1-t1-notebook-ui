@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useAuth } from "../../auth/model/authContext";
 import {
   type DashboardResponse,
   analyticsService,
@@ -21,11 +22,13 @@ const EVENT_COLORS: Record<string, string> = {
 };
 
 export function AnalyticsDashboard() {
+  const auth = useAuth();
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (auth.status !== "authenticated") return;
     analyticsService
       .getDashboard()
       .then(setDashboard)
@@ -33,7 +36,18 @@ export function AnalyticsDashboard() {
         setError(err instanceof Error ? err.message : "Failed to load analytics"),
       )
       .finally(() => setLoading(false));
-  }, []);
+  }, [auth.status]);
+
+  if (auth.status !== "authenticated") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <p className="text-gray-500">Please sign in to see analytics.</p>
+        <Link to="/" className="text-blue-500 hover:underline">
+          ← Back to notebooks
+        </Link>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
